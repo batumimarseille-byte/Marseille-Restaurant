@@ -391,8 +391,20 @@ function queueCloudProductRemoval(productId) {
   cloudSyncPromise = cloudSyncPromise
     .catch(() => undefined)
     .then(async () => {
-      const { error } = await supabase.from("products").delete().eq("id", productId);
-      if (error) throw error;
+      const { error: countItemsError } = await supabase
+        .from("inventory_count_items")
+        .delete()
+        .eq("product_id", productId);
+      if (countItemsError) throw countItemsError;
+
+      const { error: movementsError } = await supabase
+        .from("stock_movements")
+        .delete()
+        .eq("product_id", productId);
+      if (movementsError) throw movementsError;
+
+      const { error: productError } = await supabase.from("products").delete().eq("id", productId);
+      if (productError) throw productError;
     })
     .catch((error) => {
       notice = `Product removed in this browser. Cloud removal failed: ${cloudErrorMessage(error)}`;
@@ -1084,7 +1096,7 @@ function renderProducts() {
                     <td>
                       <div class="row-actions table-row-actions">
                         <button class="small-button icon-only" aria-label="Edit ${product.name}" title="Edit" type="button" data-edit-product="${product.id}">${icon("edit")}</button>
-                        <button class="danger-button icon-only" aria-label="Remove ${product.name}" title="Remove" type="button" data-delete-product="${product.id}">${icon("trash")}</button>
+                        <button class="danger-button icon-only" aria-label="Delete ${product.name}" title="Delete" type="button" data-delete-product="${product.id}">${icon("trash")}</button>
                       </div>
                     </td>
                   </tr>
@@ -1799,25 +1811,16 @@ function bindProducts() {
       const product = productById(button.dataset.deleteProduct);
       if (!product) return;
 
-      const hasHistory = state.movements.some((movement) => movement.productId === product.id);
-      if (hasHistory) {
-        if (!product.active) {
-          showNotice(`${product.name} is already inactive. Its movement history is preserved.`);
-          return;
-        }
-        if (!confirm(`${product.name} has movement history and cannot be deleted. Deactivate it instead?`)) {
-          return;
-        }
-        product.active = false;
-        if (editingProductId === product.id) editingProductId = null;
-        saveState("Product deactivated. Movement history preserved.");
-        return;
-      }
+      const historyCount = state.movements.filter((movement) => movement.productId === product.id).length;
+      const confirmation = historyCount
+        ? `Delete ${product.name} and its ${historyCount} movement record(s)? This cannot be undone.`
+        : `Delete ${product.name}? This cannot be undone.`;
+      if (!confirm(confirmation)) return;
 
-      if (!confirm(`Remove ${product.name}? This cannot be undone.`)) return;
+      state.movements = state.movements.filter((movement) => movement.productId !== product.id);
       state.products = state.products.filter((item) => item.id !== product.id);
       if (editingProductId === product.id) editingProductId = null;
-      saveState("Product removed.");
+      saveState(historyCount ? "Product and movement history deleted." : "Product deleted.");
       queueCloudProductRemoval(product.id);
     });
   });
