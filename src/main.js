@@ -1078,7 +1078,7 @@ function renderProducts() {
                 <th class="numeric">Price</th>
                 <th class="numeric">Current stock</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -1096,7 +1096,6 @@ function renderProducts() {
                     <td>
                       <div class="row-actions table-row-actions">
                         <button class="small-button icon-only" aria-label="Edit ${product.name}" title="Edit" type="button" data-edit-product="${product.id}">${icon("edit")}</button>
-                        <button class="danger-button icon-only" aria-label="Delete ${product.name}" title="Delete" type="button" data-delete-product="${product.id}">${icon("trash")}</button>
                       </div>
                     </td>
                   </tr>
@@ -1169,7 +1168,8 @@ function renderProductEditor(editingProduct, categories, units, placement = "sid
           <input type="checkbox" name="active" ${editingProduct?.active === false ? "" : "checked"} />
           Active product
         </label>
-        <div class="form-actions">
+        <div class="form-actions ${editingProduct ? "product-edit-actions" : ""}">
+          ${editingProduct ? `<button class="danger-button product-delete-button" type="button" data-delete-product="${editingProduct.id}">${icon("trash")}Delete product</button>` : ""}
           <button class="primary-button product-submit-button" type="submit">${icon("plus")}${editingProduct ? "Update product" : "Save product"}</button>
         </div>
       </form>

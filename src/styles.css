@@ -1230,6 +1230,15 @@ tbody tr:last-child td {
   width: 100%;
 }
 
+.product-edit-actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.product-edit-actions .product-submit-button {
+  width: auto;
+}
+
 .report-filters {
   display: grid;
   grid-template-columns: repeat(2, minmax(180px, 240px));
@@ -1952,6 +1961,14 @@ input[readonly]:hover {
   .row-actions,
   .form-actions {
     display: grid;
+  }
+
+  .product-edit-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .product-edit-actions .product-submit-button {
+    width: 100%;
   }
 
   .table-row-actions {
