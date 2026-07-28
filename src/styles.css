@@ -487,6 +487,13 @@ h1 {
   gap: 10px;
 }
 
+.inventory-form .panel-footer {
+  justify-content: flex-end;
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
 .primary-button,
 .ghost-button,
 .small-button,

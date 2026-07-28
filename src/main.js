@@ -1308,7 +1308,7 @@ function renderInventory() {
 
   return `
     <article class="panel">
-      <form id="inventory-form">
+      <form class="inventory-form" id="inventory-form">
         <div class="panel-header">
           <div>
             <p class="eyebrow">Monthly check</p>
@@ -1438,6 +1438,7 @@ function renderSuppliers() {
             <p class="eyebrow">${editingSupplier ? "Editing partner" : "Partner"}</p>
             <h3>${editingSupplier ? "Edit supplier" : "Add supplier"}</h3>
           </div>
+          ${editingSupplier ? `<button class="small-button icon-only" id="close-supplier-editor" type="button" aria-label="Create new supplier" title="Create new supplier">${icon("x")}</button>` : ""}
         </div>
         <form class="work-form single-column" id="supplier-form">
           ${editingSupplier ? `<input type="hidden" name="id" value="${editingSupplier.id}" />` : ""}
@@ -1449,7 +1450,6 @@ function renderSuppliers() {
             <textarea name="note" placeholder="Delivery terms, notes, categories">${editingSupplier?.note || ""}</textarea>
           </label>
           <div class="form-actions">
-            ${editingSupplier ? `<button class="ghost-button" id="cancel-supplier-edit" type="button">Cancel</button>` : ""}
             <button class="primary-button" type="submit">${icon("plus")}${editingSupplier ? "Update supplier" : "Save supplier"}</button>
           </div>
         </form>
@@ -2065,7 +2065,7 @@ function bindSuppliers() {
     });
   });
 
-  document.querySelector("#cancel-supplier-edit")?.addEventListener("click", () => {
+  document.querySelector("#close-supplier-editor")?.addEventListener("click", () => {
     editingSupplierId = null;
     notice = "";
     renderShell();
