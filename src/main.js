@@ -182,6 +182,7 @@ let editingSupplierId = null;
 let sidebarWidth = window.innerWidth > 1100 ? 260 : 208;
 let sidebarLayoutThresholds = { logo: 268, nav: 168, brand: 150, min: 88 };
 let productEditorOpen = window.innerWidth > 1100;
+let isAccountModalOpen = false;
 let reportFilters = {
   from: "2026-07-13",
   to: today(),
@@ -222,6 +223,9 @@ const actionIcons = {
   x: `<path d="M18 6 6 18" /><path d="m6 6 12 12" />`,
   check: `<path d="m20 6-11 11-5-5" />`,
   file: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6" /><path d="M8 13h8" /><path d="M8 17h5" />`,
+  user: `<circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" />`,
+  chevronRight: `<path d="m9 18 6-6-6-6" />`,
+  logout: `<path d="M10 17l5-5-5-5" /><path d="M15 12H3" /><path d="M21 19V5a2 2 0 0 0-2-2h-6" />`,
 };
 
 function loadState() {
@@ -634,6 +638,7 @@ function renderShell() {
         <div class="sidebar-resizer" id="sidebar-resizer" role="separator" aria-orientation="vertical" aria-label="Resize navigation"></div>
         <main class="main"></main>
       </div>
+      <div id="modal-root"></div>
     `;
     shell = app.querySelector(".app-shell");
     bindSidebarResizer();
@@ -641,6 +646,7 @@ function renderShell() {
 
   shell.style.setProperty("--sidebar-width", `${sidebarWidth}px`);
   shell.querySelector(".main").innerHTML = renderMain();
+  renderAccountModalLayer();
   updateNavigationState();
   updateSidebarPresentation();
 
@@ -675,13 +681,68 @@ function renderSidebar() {
         `).join("")}
       </nav>
       ${cloudUser ? `
-        <div class="sidebar-account">
-          <span>${cloudUser.email || "Administrator"}</span>
-          <button type="button" class="sidebar-sign-out" id="sign-out">Sign out</button>
-        </div>
+        <button class="sidebar-account" id="open-account-modal" type="button" aria-haspopup="dialog">
+          <span class="sidebar-account-icon">${icon("user")}</span>
+          <span class="sidebar-account-copy">
+            <strong>Administrator</strong>
+            <span>${cloudUser.email || "Restaurant account"}</span>
+          </span>
+          <span class="sidebar-account-chevron" aria-hidden="true">${icon("chevronRight")}</span>
+        </button>
       ` : ""}
     </aside>
   `;
+}
+
+function renderAccountModal() {
+  if (!isAccountModalOpen || !cloudUser) return "";
+
+  return `
+    <div class="modal-backdrop" id="account-modal-backdrop">
+      <section class="account-modal" role="dialog" aria-modal="true" aria-labelledby="account-modal-title">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Account</p>
+            <h3 id="account-modal-title">Administrator</h3>
+          </div>
+          <button class="small-button icon-only" id="close-account-modal" type="button" aria-label="Close account settings" title="Close">${icon("x")}</button>
+        </div>
+        <div class="account-modal-user">
+          <span class="account-modal-avatar">${icon("user")}</span>
+          <span>${cloudUser.email || "Restaurant account"}</span>
+        </div>
+        <label class="account-language-field">
+          <span>Language</span>
+          <select aria-label="Language" disabled>
+            <option>English</option>
+          </select>
+        </label>
+        <div class="modal-actions">
+          <button class="danger-button" id="account-sign-out" type="button">${icon("logout")}Sign out</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+function renderAccountModalLayer() {
+  const modalRoot = document.querySelector("#modal-root");
+  if (!modalRoot) return;
+  modalRoot.innerHTML = renderAccountModal();
+
+  const closeModal = () => {
+    isAccountModalOpen = false;
+    renderAccountModalLayer();
+  };
+
+  document.querySelector("#close-account-modal")?.addEventListener("click", closeModal);
+  document.querySelector("#account-modal-backdrop")?.addEventListener("click", (event) => {
+    if (event.target === event.currentTarget) closeModal();
+  });
+  document.querySelector("#account-sign-out")?.addEventListener("click", () => {
+    isAccountModalOpen = false;
+    signOut();
+  });
 }
 
 function renderMain() {
@@ -849,7 +910,13 @@ function bindCurrentView() {
 }
 
 function bindGlobalActions() {
-  document.querySelector("#sign-out")?.addEventListener("click", signOut);
+  const accountButton = document.querySelector("#open-account-modal");
+  if (!accountButton || accountButton.dataset.bound) return;
+  accountButton.dataset.bound = "true";
+  accountButton.addEventListener("click", () => {
+    isAccountModalOpen = true;
+    renderAccountModalLayer();
+  });
 }
 
 function renderSection() {
@@ -1164,14 +1231,26 @@ function renderProductEditor(editingProduct, categories, units, placement = "sid
         ${numberInput("Opening stock", "openingStock", String(editingProduct?.openingStock ?? 0), true)}
         ${numberInput("Minimum stock", "minStock", String(editingProduct?.minStock ?? 2), true)}
         ${numberInput("Purchase price", "price", formatEditablePrice(editingProduct?.price ?? 6), true)}
-        <label class="checkbox-line">
-          <input type="checkbox" name="active" ${editingProduct?.active === false ? "" : "checked"} />
-          Active product
-        </label>
-        <div class="form-actions ${editingProduct ? "product-edit-actions" : ""}">
-          ${editingProduct ? `<button class="danger-button product-delete-button" type="button" data-delete-product="${editingProduct.id}">${icon("trash")}Delete product</button>` : ""}
-          <button class="primary-button product-submit-button" type="submit">${icon("plus")}${editingProduct ? "Update product" : "Save product"}</button>
-        </div>
+        ${editingProduct ? `
+          <div class="product-status-row">
+            <label class="checkbox-line">
+              <input type="checkbox" name="active" ${editingProduct.active === false ? "" : "checked"} />
+              Active product
+            </label>
+            <div class="form-actions product-edit-actions">
+              <button class="danger-button product-delete-button" type="button" data-delete-product="${editingProduct.id}">${icon("trash")}Delete</button>
+              <button class="primary-button product-submit-button" type="submit">${icon("check")}Update</button>
+            </div>
+          </div>
+        ` : `
+          <label class="checkbox-line">
+            <input type="checkbox" name="active" checked />
+            Active product
+          </label>
+          <div class="form-actions">
+            <button class="primary-button product-submit-button" type="submit">${icon("plus")}Save product</button>
+          </div>
+        `}
       </form>
     </article>
   `;
