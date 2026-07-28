@@ -2,6 +2,7 @@ import "./styles.css";
 import { createClient } from "@supabase/supabase-js";
 
 const STORAGE_KEY = "restaurant-inventory-v1";
+const LANGUAGE_STORAGE_KEY = "marseille-restaurant-language";
 const SEED_VERSION = 2;
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -126,6 +127,182 @@ const sections = [
   { id: "reports", label: "Reports" },
 ];
 
+const georgianTranslations = {
+  "Overview": "მიმოხილვა",
+  "Products": "პროდუქტები",
+  "Incoming": "მიღება",
+  "Outgoing": "ხარჯვა",
+  "Inventory": "ინვენტარიზაცია",
+  "Suppliers": "მომწოდებლები",
+  "Reports": "ანგარიშები",
+  "Stock control": "საწყობის მართვა",
+  "Add incoming": "მიღების დამატება",
+  "Opening workspace": "სამუშაო სივრცე იხსნება",
+  "Connecting to the restaurant inventory.": "რესტორნის საწყობთან კავშირი.",
+  "Sign in": "შესვლა",
+  "Use the administrator account created in Supabase.": "გამოიყენეთ Supabase-ში შექმნილი ადმინისტრატორის ანგარიში.",
+  "Email": "ელფოსტა",
+  "Password": "პაროლი",
+  "Account": "ანგარიში",
+  "Administrator": "ადმინისტრატორი",
+  "Restaurant account": "რესტორნის ანგარიში",
+  "Language": "ენა",
+  "English": "ინგლისური",
+  "Sign out": "გასვლა",
+  "Activity": "აქტივობა",
+  "Latest movements": "ბოლო მოძრაობები",
+  "Attention": "ყურადღება",
+  "Low stock queue": "დაბალი ნაშთის სია",
+  "Value": "ღირებულება",
+  "Highest stock value": "ყველაზე მაღალი ღირებულება",
+  "Stock value": "საწყობის ღირებულება",
+  "Low stock": "დაბალი ნაშთი",
+  "7 day incoming": "7 დღის მიღება",
+  "7 day outgoing": "7 დღის ხარჯვა",
+  "Needs attention today": "დღეს საჭიროებს ყურადღებას",
+  "All products are above minimum": "ყველა პროდუქტი მინიმუმზე მეტია",
+  "No products need attention right now.": "ამჟამად არც ერთ პროდუქტს არ სჭირდება ყურადღება.",
+  "Catalog": "კატალოგი",
+  "Product list": "პროდუქტების სია",
+  "Add product": "პროდუქტის დამატება",
+  "Search products": "პროდუქტების ძიება",
+  "Category": "კატეგორია",
+  "All categories": "ყველა კატეგორია",
+  "Status": "სტატუსი",
+  "All statuses": "ყველა სტატუსი",
+  "Active": "აქტიური",
+  "Inactive": "არააქტიური",
+  "Name": "დასახელება",
+  "Unit": "ერთეული",
+  "Min stock": "მინ. ნაშთი",
+  "Price": "ფასი",
+  "Current stock": "მიმდინარე ნაშთი",
+  "Action": "მოქმედება",
+  "No products match these filters.": "პროდუქტები ამ ფილტრებს არ შეესაბამება.",
+  "Editing item": "პროდუქტის რედაქტირება",
+  "New item": "ახალი პროდუქტი",
+  "Edit product": "პროდუქტის რედაქტირება",
+  "New category": "ახალი კატეგორია",
+  "Saved categories": "შენახული კატეგორიები",
+  "New unit": "ახალი ერთეული",
+  "Saved units": "შენახული ერთეულები",
+  "Opening stock": "საწყისი ნაშთი",
+  "Minimum stock": "მინიმალური ნაშთი",
+  "Purchase price": "შესყიდვის ფასი",
+  "Active product": "აქტიური პროდუქტი",
+  "Delete": "წაშლა",
+  "Update": "განახლება",
+  "Save product": "პროდუქტის შენახვა",
+  "Close": "დახურვა",
+  "New category name": "ახალი კატეგორიის დასახელება",
+  "New unit name": "ახალი ერთეულის დასახელება",
+  "Invoice number or delivery notes": "ინვოისის ნომერი ან მიწოდების შენიშვნები",
+  "Optional details": "დამატებითი დეტალები",
+  "Delivery terms, notes, categories": "მიწოდების პირობები, შენიშვნები, კატეგორიები",
+  "Receiving": "მიღება",
+  "Add incoming goods": "საქონლის მიღების დამატება",
+  "Date": "თარიღი",
+  "Supplier": "მომწოდებელი",
+  "Product": "პროდუქტი",
+  "Quantity": "რაოდენობა",
+  "Unit price": "ერთეულის ფასი",
+  "Total": "ჯამი",
+  "Comment": "კომენტარი",
+  "Save incoming": "მიღების შენახვა",
+  "Receiving status": "მიღების სტატუსი",
+  "Stock increases": "ნაშთი იზრდება",
+  "Received value": "მიღებული ღირებულება",
+  "History": "ისტორია",
+  "Usage": "ხარჯვა",
+  "Add outgoing goods": "ხარჯის დამატება",
+  "Stock after": "ნაშთი შემდეგ",
+  "Reason": "მიზეზი",
+  "Kitchen": "სამზარეულო",
+  "Bar": "ბარი",
+  "Write-off": "ჩამოწერა",
+  "Spoilage": "გაფუჭება",
+  "Staff": "პერსონალი",
+  "Other": "სხვა",
+  "Save outgoing": "ხარჯის შენახვა",
+  "Usage status": "ხარჯვის სტატუსი",
+  "Stock decreases": "ნაშთი მცირდება",
+  "Usage value": "ხარჯვის ღირებულება",
+  "Guarded": "კონტროლი",
+  "Traceable": "ისტორიაში",
+  "Monthly check": "თვიური შემოწმება",
+  "Inventory count": "ინვენტარიზაცია",
+  "Changed rows": "შეცვლილი პოზიციები",
+  "Difference value": "სხვაობის ღირებულება",
+  "Draft status": "დრაფტის სტატუსი",
+  "Saved to cloud": "შენახულია ღრუბელში",
+  "Saved in browser": "შენახულია ბრაუზერში",
+  "Not saved": "არ არის შენახული",
+  "System stock": "სისტემური ნაშთი",
+  "Actual stock": "ფაქტობრივი ნაშთი",
+  "Difference": "სხვაობა",
+  "Difference value": "სხვაობის ღირებულება",
+  "Optional": "არასავალდებულო",
+  "Save draft": "დრაფტის შენახვა",
+  "Clear draft": "დრაფტის გასუფთავება",
+  "Confirm inventory": "ინვენტარიზაციის დადასტურება",
+  "Phone": "ტელეფონი",
+  "Contact": "კონტაქტი",
+  "Not set": "არ არის მითითებული",
+  "No comment": "კომენტარი არ არის",
+  "Editing partner": "მომწოდებლის რედაქტირება",
+  "Partner": "მომწოდებელი",
+  "Edit supplier": "მომწოდებლის რედაქტირება",
+  "Add supplier": "მომწოდებლის დამატება",
+  "Contact person": "საკონტაქტო პირი",
+  "Update supplier": "მომწოდებლის განახლება",
+  "Save supplier": "მომწოდებლის შენახვა",
+  "Choose report": "ანგარიშის არჩევა",
+  "From": "დან",
+  "To": "მდე",
+  "Print": "ბეჭდვა",
+  "Export": "ექსპორტი",
+  "Movement journal": "მოძრაობის ჟურნალი",
+  "All stock changes": "ნაშთის ყველა ცვლილება",
+  "Every incoming, outgoing, and inventory correction.": "ყველა მიღება, ხარჯი და ინვენტარიზაციის კორექცია.",
+  "Incoming goods": "საქონლის მიღება",
+  "Purchases": "შესყიდვები",
+  "What was received from suppliers in the period.": "რა მიიღეს მომწოდებლებისგან მოცემულ პერიოდში.",
+  "Outgoing and write-offs": "ხარჯი და ჩამოწერები",
+  "Kitchen, bar, spoilage, staff, and other usage.": "სამზარეულო, ბარი, გაფუჭება, პერსონალი და სხვა ხარჯი.",
+  "Low stock products": "დაბალი ნაშთის პროდუქტები",
+  "Action needed": "საჭიროა მოქმედება",
+  "Products that are at or below minimum stock.": "პროდუქტები მინიმალურ ნაშთზე ან მის ქვემოთ.",
+  "Inventory differences": "ინვენტარიზაციის სხვაობები",
+  "Corrections": "კორექციები",
+  "Confirmed stock corrections from inventory counts.": "ინვენტარიზაციით დადასტურებული ნაშთის კორექციები.",
+  "Low stock items": "დაბალი ნაშთის პოზიციები",
+  "Current value": "მიმდინარე ღირებულება",
+  "Total shortage": "სულ ნაკლებობა",
+  "Records": "ჩანაწერები",
+  "Total value": "ჯამური ღირებულება",
+  "Net stock value": "წმინდა ნაშთის ღირებულება",
+  "No low stock products.": "დაბალი ნაშთის პროდუქტები არ არის.",
+  "Type": "ტიპი",
+  "Details": "დეტალები",
+  "No movements yet.": "მოძრაობები ჯერ არ არის.",
+  "Incoming": "მიღება",
+  "Outgoing": "ხარჯვა",
+  "Inventory adjustment": "ინვენტარიზაციის კორექცია",
+  "Deleted product": "წაშლილი პროდუქტი",
+  "Meat": "ხორცი",
+  "Fish": "თევზი",
+  "Vegetables": "ბოსტნეული",
+  "Herbs": "მწვანილი",
+  "Dairy": "რძის ნაწარმი",
+  "Dry goods": "მშრალი პროდუქტი",
+  "Bakery": "საცხობი",
+  "Fruit": "ხილი",
+  "gram": "გრამი",
+  "liter": "ლიტრი",
+  "piece": "ცალი",
+  "package": "შეფუთვა",
+};
+
 const defaultUnits = ["kg", "gram", "liter", "piece", "package"];
 
 const navIcons = {
@@ -183,6 +360,7 @@ let sidebarWidth = window.innerWidth > 1100 ? 260 : 208;
 let sidebarLayoutThresholds = { logo: 268, nav: 168, brand: 150, min: 88 };
 let productEditorOpen = window.innerWidth > 1100;
 let isAccountModalOpen = false;
+let language = localStorage.getItem(LANGUAGE_STORAGE_KEY) === "ka" ? "ka" : "en";
 let reportFilters = {
   from: "2026-07-13",
   to: today(),
@@ -227,6 +405,54 @@ const actionIcons = {
   chevronRight: `<path d="m9 18 6-6-6-6" />`,
   logout: `<path d="M10 17l5-5-5-5" /><path d="M15 12H3" /><path d="M21 19V5a2 2 0 0 0-2-2h-6" />`,
 };
+
+function translateText(value) {
+  if (language !== "ka" || typeof value !== "string") return value;
+  const leading = value.match(/^\s*/)?.[0] || "";
+  const trailing = value.match(/\s*$/)?.[0] || "";
+  const text = value.trim();
+  if (!text) return value;
+
+  const dynamicTranslation =
+    text.match(/^(\d+) active products$/) ? `${text.match(/^(\d+)/)[1]} აქტიური პროდუქტი` :
+    text.match(/^(\d+) received records$/) ? `${text.match(/^(\d+)/)[1]} მიღების ჩანაწერი` :
+    text.match(/^(\d+) usage records$/) ? `${text.match(/^(\d+)/)[1]} ხარჯვის ჩანაწერი` :
+    text.match(/^Showing (\d+) products?$/) ? `ნაჩვენებია: ${text.match(/^Showing (\d+)/)[1]} პროდუქტი` :
+    text.match(/^(\d+) suppliers available$/) ? `${text.match(/^(\d+)/)[1]} მომწოდებელი ხელმისაწვდომია` :
+    text.match(/^(\d+) low stock products$/) ? `${text.match(/^(\d+)/)[1]} დაბალი ნაშთის პროდუქტი` :
+    text.match(/^(\d+) day receipts$/) ? `${text.match(/^(\d+)/)[1]} დღის მიღება` :
+    text.match(/^(\d+) day usage$/) ? `${text.match(/^(\d+)/)[1]} დღის ხარჯვა` :
+    null;
+
+  return `${leading}${georgianTranslations[text] || dynamicTranslation || text}${trailing}`;
+}
+
+function localizeInterface(root = app) {
+  document.documentElement.lang = language === "ka" ? "ka" : "en";
+  if (language !== "ka" || !root) return;
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) textNodes.push(walker.currentNode);
+  textNodes.forEach((node) => {
+    node.nodeValue = translateText(node.nodeValue);
+  });
+
+  root.querySelectorAll("[placeholder], [title], [aria-label]").forEach((element) => {
+    ["placeholder", "title", "aria-label"].forEach((attribute) => {
+      if (element.hasAttribute(attribute)) {
+        element.setAttribute(attribute, translateText(element.getAttribute(attribute)));
+      }
+    });
+  });
+}
+
+function setLanguage(nextLanguage) {
+  language = nextLanguage === "ka" ? "ka" : "en";
+  localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+  isAccountModalOpen = false;
+  renderShell();
+}
 
 function loadState() {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -427,6 +653,7 @@ function renderCloudLoading() {
       </div>
     </main>
   `;
+  localizeInterface();
 }
 
 function renderAuthScreen(message = "") {
@@ -444,6 +671,7 @@ function renderAuthScreen(message = "") {
       </form>
     </main>
   `;
+  localizeInterface();
 
   document.querySelector("#auth-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -647,6 +875,7 @@ function renderShell() {
   shell.style.setProperty("--sidebar-width", `${sidebarWidth}px`);
   shell.querySelector(".main").innerHTML = renderMain();
   renderAccountModalLayer();
+  localizeInterface();
   updateNavigationState();
   updateSidebarPresentation();
 
@@ -713,8 +942,9 @@ function renderAccountModal() {
         </div>
         <label class="account-language-field">
           <span>Language</span>
-          <select aria-label="Language" disabled>
-            <option>English</option>
+          <select id="account-language" aria-label="Language">
+            <option value="en" ${language === "en" ? "selected" : ""}>English</option>
+            <option value="ka" ${language === "ka" ? "selected" : ""}>ქართული</option>
           </select>
         </label>
         <div class="modal-actions">
@@ -729,6 +959,7 @@ function renderAccountModalLayer() {
   const modalRoot = document.querySelector("#modal-root");
   if (!modalRoot) return;
   modalRoot.innerHTML = renderAccountModal();
+  localizeInterface(modalRoot);
 
   const closeModal = () => {
     isAccountModalOpen = false;
@@ -742,6 +973,9 @@ function renderAccountModalLayer() {
   document.querySelector("#account-sign-out")?.addEventListener("click", () => {
     isAccountModalOpen = false;
     signOut();
+  });
+  document.querySelector("#account-language")?.addEventListener("change", (event) => {
+    setLanguage(event.currentTarget.value);
   });
 }
 
@@ -1910,8 +2144,8 @@ function bindChoiceMode(button, savedField, newField, newLabel, savedLabel) {
     const useNewValue = button.dataset.mode !== "new";
     button.dataset.mode = useNewValue ? "new" : "saved";
     button.innerHTML = useNewValue
-      ? `${icon("check")}${savedLabel}`
-      : `${icon("plus")}${newLabel}`;
+      ? `${icon("check")}${translateText(savedLabel)}`
+      : `${icon("plus")}${translateText(newLabel)}`;
     savedField.hidden = useNewValue;
     savedField.disabled = useNewValue;
     newField.hidden = !useNewValue;
