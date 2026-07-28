@@ -30,6 +30,8 @@ supabase/migrations/202607250001_initial_inventory_schema.sql
 
 Run it once on a new project. The schema uses numeric IDs so it matches the existing restaurant data without remapping records.
 
+Then run every later file from `supabase/migrations` in filename order. If the initial schema has already been applied, run [202607280002_allow_custom_product_units.sql](migrations/202607280002_allow_custom_product_units.sql) now.
+
 ## First account
 
 Open **Authentication -> Users -> Add user** in Supabase and create the administrator email and password. That account signs in to the published app.
