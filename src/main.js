@@ -218,7 +218,7 @@ const actionIcons = {
   edit: `<path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />`,
   search: `<circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />`,
   arrowUpRight: `<path d="M7 7h10v10" /><path d="M7 17 17 7" />`,
-  rotate: `<path d="M3 12a9 9 0 0 1 15-6.7L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-15 6.7L3 16" /><path d="M3 21v-5h5" />`,
+  trash: `<path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v5" /><path d="M14 11v5" />`,
   x: `<path d="M18 6 6 18" /><path d="m6 6 12 12" />`,
   check: `<path d="m20 6-11 11-5-5" />`,
   file: `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6" /><path d="M8 13h8" /><path d="M8 17h5" />`,
@@ -252,15 +252,6 @@ function saveState(message) {
 function showNotice(message) {
   notice = message;
   renderShell();
-}
-
-function resetLocalData() {
-  if (!confirm("Reset all local inventory data and restore demo records?")) return;
-  state = structuredClone(seedState);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  notice = "Inventory reset to demo records.";
-  renderShell();
-  queueCloudSync();
 }
 
 function isCloudEnabled() {
@@ -390,6 +381,21 @@ function queueCloudSync() {
     .then(() => writeCloudState())
     .catch((error) => {
       notice = `Saved in this browser. Cloud sync failed: ${cloudErrorMessage(error)}`;
+      renderShell();
+    });
+}
+
+function queueCloudProductRemoval(productId) {
+  if (!isCloudEnabled()) return;
+
+  cloudSyncPromise = cloudSyncPromise
+    .catch(() => undefined)
+    .then(async () => {
+      const { error } = await supabase.from("products").delete().eq("id", productId);
+      if (error) throw error;
+    })
+    .catch((error) => {
+      notice = `Product removed in this browser. Cloud removal failed: ${cloudErrorMessage(error)}`;
       renderShell();
     });
 }
@@ -831,8 +837,6 @@ function bindCurrentView() {
 }
 
 function bindGlobalActions() {
-  document.querySelector("#export-data")?.addEventListener("click", exportLocalData);
-  document.querySelector("#import-data")?.addEventListener("change", importLocalData);
   document.querySelector("#sign-out")?.addEventListener("click", signOut);
 }
 
@@ -1080,7 +1084,7 @@ function renderProducts() {
                     <td>
                       <div class="row-actions table-row-actions">
                         <button class="small-button icon-only" aria-label="Edit ${product.name}" title="Edit" type="button" data-edit-product="${product.id}">${icon("edit")}</button>
-                        <button class="${product.active ? "danger-button" : "small-button"} icon-only" aria-label="${product.active ? "Deactivate" : "Activate"} ${product.name}" title="${product.active ? "Deactivate" : "Activate"}" type="button" data-toggle-product="${product.id}">${icon(product.active ? "x" : "check")}</button>
+                        <button class="danger-button icon-only" aria-label="Remove ${product.name}" title="Remove" type="button" data-delete-product="${product.id}">${icon("trash")}</button>
                       </div>
                     </td>
                   </tr>
@@ -1504,23 +1508,6 @@ function renderReports() {
           </div>
           ${renderReportContent(selectedMovements)}
         </article>
-
-        <article class="panel local-data-panel">
-          <div>
-            <p class="eyebrow">Local data</p>
-            <h3>Backup and restore</h3>
-          </div>
-          <p>Use these actions only for local browser data. Later this area can move into account settings.</p>
-          <div class="row-actions">
-            <button class="ghost-button" id="export-data" type="button">${icon("download")}Export backup</button>
-            <label class="import-button">
-              ${icon("upload")}
-              Import backup
-              <input id="import-data" type="file" accept="application/json" />
-            </label>
-            <button class="danger-button" id="reset-data" type="button">${icon("rotate")}Reset demo data</button>
-          </div>
-        </article>
       </section>
     </div>
   `;
@@ -1807,15 +1794,31 @@ function bindProducts() {
     renderShell();
   });
 
-  document.querySelectorAll("[data-toggle-product]").forEach((button) => {
+  document.querySelectorAll("[data-delete-product]").forEach((button) => {
     button.addEventListener("click", () => {
-      const product = productById(button.dataset.toggleProduct);
-      if (product.active && !confirm(`Deactivate ${product.name}? History will stay untouched.`)) {
+      const product = productById(button.dataset.deleteProduct);
+      if (!product) return;
+
+      const hasHistory = state.movements.some((movement) => movement.productId === product.id);
+      if (hasHistory) {
+        if (!product.active) {
+          showNotice(`${product.name} is already inactive. Its movement history is preserved.`);
+          return;
+        }
+        if (!confirm(`${product.name} has movement history and cannot be deleted. Deactivate it instead?`)) {
+          return;
+        }
+        product.active = false;
+        if (editingProductId === product.id) editingProductId = null;
+        saveState("Product deactivated. Movement history preserved.");
         return;
       }
-      product.active = !product.active;
+
+      if (!confirm(`Remove ${product.name}? This cannot be undone.`)) return;
+      state.products = state.products.filter((item) => item.id !== product.id);
       if (editingProductId === product.id) editingProductId = null;
-      saveState(product.active ? "Product activated." : "Product deactivated. History preserved.");
+      saveState("Product removed.");
+      queueCloudProductRemoval(product.id);
     });
   });
 }
@@ -2141,90 +2144,6 @@ function exportRowsForActiveReport() {
       comment: movement.comment || "",
     };
   });
-}
-
-function exportLocalData() {
-  downloadJson(`marseille-restaurant-backup-${today()}.json`, {
-    exportedAt: new Date().toISOString(),
-    storage: "localStorage",
-    data: state,
-  });
-}
-
-function importLocalData(event) {
-  const file = event.target.files?.[0];
-  event.target.value = "";
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-    try {
-      const parsed = JSON.parse(String(reader.result));
-      const importedState = parsed.data || parsed;
-
-      if (!isValidState(importedState)) {
-        throw new Error("Invalid inventory backup format.");
-      }
-
-      if (!confirm("Import this backup and replace current local data?")) {
-        return;
-      }
-
-      state = normalizeImportedState(importedState);
-      editingProductId = null;
-      editingSupplierId = null;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      saveState("Backup imported successfully.");
-    } catch (error) {
-      notice = error.message || "Could not import backup file.";
-      renderShell();
-    }
-  });
-  reader.readAsText(file);
-}
-
-function isValidState(value) {
-  return (
-    value &&
-    Array.isArray(value.products) &&
-    Array.isArray(value.suppliers) &&
-    Array.isArray(value.movements)
-  );
-}
-
-function normalizeImportedState(value) {
-  return {
-    seedVersion: value.seedVersion || SEED_VERSION,
-    products: value.products.map((product) => ({
-      id: Number(product.id),
-      name: String(product.name || "").trim(),
-      category: String(product.category || "Uncategorized").trim(),
-      unit: product.unit || "kg",
-      minStock: Number(product.minStock || 0),
-      price: Number(product.price || 0),
-      openingStock: Number(product.openingStock || 0),
-      active: product.active !== false,
-    })),
-    suppliers: value.suppliers.map((supplier) => ({
-      id: Number(supplier.id),
-      name: String(supplier.name || "").trim(),
-      phone: String(supplier.phone || ""),
-      contact: String(supplier.contact || ""),
-      note: String(supplier.note || ""),
-    })),
-    movements: value.movements.map((movement) => ({
-      id: Number(movement.id),
-      type: movement.type || "outgoing",
-      productId: Number(movement.productId),
-      supplierId: movement.supplierId ? Number(movement.supplierId) : undefined,
-      date: movement.date || today(),
-      quantity: Number(movement.quantity || 0),
-      unitPrice: Number(movement.unitPrice || 0),
-      reason: movement.reason || "",
-      comment: String(movement.comment || ""),
-    })),
-    inventoryDraft: value.inventoryDraft || { date: "", items: {} },
-  };
 }
 
 function downloadJson(filename, data) {

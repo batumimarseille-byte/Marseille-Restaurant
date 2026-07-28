@@ -40,4 +40,4 @@ Open **Authentication -> Users -> Add user** in Supabase and create the administ
 
 Copy `.env.example` to `.env.local` and fill in the project URL and anon key from **Project Settings -> API**. Add the same variables in Vercel before deployment.
 
-The application keeps a local backup in the browser as a fallback, then synchronizes products, suppliers, movements, and the current inventory draft to Supabase after sign-in.
+After sign-in, the application synchronizes products, suppliers, movements, and the current inventory draft to Supabase.
