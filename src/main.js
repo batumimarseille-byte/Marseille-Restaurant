@@ -188,6 +188,7 @@ const georgianTranslations = {
   "Purchase price": "შესყიდვის ფასი",
   "Active product": "აქტიური პროდუქტი",
   "Delete": "წაშლა",
+  "Edit": "რედაქტირება",
   "Update": "განახლება",
   "Save product": "პროდუქტის შენახვა",
   "Close": "დახურვა",
@@ -420,10 +421,12 @@ function localizeInterface(root = app) {
   const textNodes = [];
   while (walker.nextNode()) textNodes.push(walker.currentNode);
   textNodes.forEach((node) => {
+    if (node.parentElement?.closest("[data-no-translate]")) return;
     node.nodeValue = translateText(node.nodeValue);
   });
 
   root.querySelectorAll("[placeholder], [title], [aria-label]").forEach((element) => {
+    if (element.closest("[data-no-translate]")) return;
     ["placeholder", "title", "aria-label"].forEach((attribute) => {
       if (element.hasAttribute(attribute)) {
         element.setAttribute(attribute, translateText(element.getAttribute(attribute)));
@@ -1718,14 +1721,14 @@ function renderSuppliers() {
             <div class="card-title-row">
               <div>
                 <p class="eyebrow">Supplier</p>
-                <h3>${supplier.name}</h3>
+                <h3 data-no-translate>${supplier.name}</h3>
               </div>
               <button class="small-button icon-only" aria-label="Edit ${supplier.name}" title="Edit" type="button" data-edit-supplier="${supplier.id}">${icon("edit")}</button>
             </div>
             <dl>
-              <div><dt>Phone</dt><dd>${supplier.phone || "Not set"}</dd></div>
-              <div><dt>Contact</dt><dd>${supplier.contact || "Not set"}</dd></div>
-              <div><dt>Comment</dt><dd>${supplier.note || "No comment"}</dd></div>
+              <div><dt>Phone</dt><dd ${supplier.phone ? "data-no-translate" : ""}>${supplier.phone || "Not set"}</dd></div>
+              <div><dt>Contact</dt><dd ${supplier.contact ? "data-no-translate" : ""}>${supplier.contact || "Not set"}</dd></div>
+              <div><dt>Comment</dt><dd ${supplier.note ? "data-no-translate" : ""}>${supplier.note || "No comment"}</dd></div>
             </dl>
           </article>
         `).join("")}
@@ -1745,7 +1748,7 @@ function renderSuppliers() {
           ${textInput("Contact person", "contact", editingSupplier?.contact || "Mariam", false)}
           <label>
             Comment
-            <textarea name="note" placeholder="Delivery terms, notes, categories">${editingSupplier?.note || ""}</textarea>
+            <textarea name="note" data-no-translate placeholder="Delivery terms, notes, categories">${editingSupplier?.note || ""}</textarea>
           </label>
           <div class="form-actions">
             <button class="primary-button" type="submit">${icon("plus")}${editingSupplier ? "Update supplier" : "Save supplier"}</button>
