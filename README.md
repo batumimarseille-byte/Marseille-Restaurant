@@ -25,6 +25,20 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 At the first authorized launch on an empty database, the app migrates the current browser data, including the demo records, into Supabase. Afterwards the cloud database is the source of truth. The browser copy remains a fallback and can still be exported from the Reports screen.
 
+### Monthly reconciliation
+
+Run [the reconciliation migration](supabase/migrations/202611170003_store_reconciliation_data.sql) once in the Supabase SQL Editor before using **Monthly check**. It permits the app to store recipe cards, imported Poster sales drafts, and a saved physical-count draft.
+
+The monthly workflow is deliberately review-first:
+
+1. Export or copy the **product** and **quantity** columns from Poster for the period, then paste them into **Monthly check**.
+2. Create a recipe card for every Poster menu item that consumes stock. Use the exact menu name from Poster and the real ingredient amount per sold item. For bottled drinks or packaged goods, use one piece; for spirits, draft drinks, and dishes, confirm the real bottle/portion measure with the bar or kitchen.
+3. The app shows every imported item without a recipe card. Complete those before closing the period; the app never invents a recipe or portion size.
+4. Count the physical stock and enter the real quantity for every active product.
+5. Confirm the monthly check. The app then writes one traceable outgoing movement per recipe ingredient from Poster sales and one inventory adjustment for each remaining physical difference.
+
+No stock changes are made while sales or counts are saved as drafts. A confirmed month remains visible in movement history and reports.
+
 ## Vercel
 
 1. Import this GitHub repository in Vercel.

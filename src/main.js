@@ -156,6 +156,7 @@ const sections = [
   { id: "incoming", label: "Incoming" },
   { id: "outgoing", label: "Outgoing" },
   { id: "inventory", label: "Inventory" },
+  { id: "reconcile", label: "Monthly check" },
   { id: "suppliers", label: "Suppliers" },
   { id: "reports", label: "Reports" },
 ];
@@ -166,6 +167,7 @@ const georgianTranslations = {
   "Incoming": "მიღება",
   "Outgoing": "ხარჯვა",
   "Inventory": "ინვენტარიზაცია",
+  "Monthly check": "თვიური შემოწმება",
   "Suppliers": "მომწოდებლები",
   "Reports": "ანგარიშები",
   "Stock control": "საწყობის მართვა",
@@ -325,6 +327,15 @@ const georgianTranslations = {
   "Outgoing": "ხარჯვა",
   "Inventory adjustment": "ინვენტარიზაციის კორექცია",
   "Deleted product": "წაშლილი პროდუქტი",
+  "Poster sales": "Poster გაყიდვები",
+  "Recipe cards": "ტექნოლოგიური ბარათები",
+  "Physical count": "ფაქტობრივი დათვლა",
+  "Expected closing": "მოსალოდნელი ნაშთი",
+  "Actual count": "ფაქტობრივი ნაშთი",
+  "Difference": "სხვაობა",
+  "Comment": "კომენტარი",
+  "Save draft": "შენახვა",
+  "Confirm monthly check": "თვიური შემოწმების დადასტურება",
 };
 
 const defaultUnits = ["kg", "gram", "liter", "piece", "package"];
@@ -357,6 +368,13 @@ const navIcons = {
     <rect width="8" height="4" x="8" y="2" rx="1" />
     <path d="m9 14 2 2 4-4" />
   `,
+  reconcile: `
+    <path d="M3 3v18h18" />
+    <path d="M7 16v-4" />
+    <path d="M12 16V8" />
+    <path d="M17 16v-6" />
+    <path d="m6 8 4 2 4-4 4 2" />
+  `,
   suppliers: `
     <path d="M14 18V6a2 2 0 0 0-2-2H3v14Z" />
     <path d="M15 18H9" />
@@ -380,6 +398,8 @@ let cloudUser = null;
 let cloudSyncPromise = Promise.resolve();
 let editingProductId = null;
 let editingSupplierId = null;
+let editingRecipeId = null;
+let recipeDraftIngredients = [{ productId: "", quantity: "" }];
 let sidebarWidth = window.innerWidth > 1100 ? 260 : 208;
 let sidebarLayoutThresholds = { logo: 268, nav: 168, brand: 150, min: 88 };
 let productEditorOpen = window.innerWidth > 1100;
@@ -495,6 +515,9 @@ function normalizeState(value) {
   return {
     ...value,
     inventoryDraft: value.inventoryDraft || { date: "", items: {} },
+    recipes: Array.isArray(value.recipes) ? value.recipes : [],
+    salesImports: Array.isArray(value.salesImports) ? value.salesImports : [],
+    reconciliationDraft: value.reconciliationDraft || { date: "", actuals: {}, comments: {} },
   };
 }
 
@@ -518,7 +541,8 @@ function cloudErrorMessage(error) {
   return error?.message || "Could not connect to Supabase.";
 }
 
-function cloudRowsToState(products, suppliers, movements, appState) {
+function cloudRowsToState(products, suppliers, movements, appStates) {
+  const stateByKey = Object.fromEntries((appStates || []).map((item) => [item.key, item.value]));
   return normalizeState({
     seedVersion: SEED_VERSION,
     products: products.map((product) => ({
@@ -549,9 +573,14 @@ function cloudRowsToState(products, suppliers, movements, appState) {
       reason: movement.reason || "",
       comment: movement.comment || "",
     })),
-    inventoryDraft: appState?.value && typeof appState.value === "object"
-      ? appState.value
+    inventoryDraft: stateByKey.inventory_draft && typeof stateByKey.inventory_draft === "object"
+      ? stateByKey.inventory_draft
       : { date: "", items: {} },
+    recipes: Array.isArray(stateByKey.recipes) ? stateByKey.recipes : [],
+    salesImports: Array.isArray(stateByKey.sales_imports) ? stateByKey.sales_imports : [],
+    reconciliationDraft: stateByKey.reconciliation_draft && typeof stateByKey.reconciliation_draft === "object"
+      ? stateByKey.reconciliation_draft
+      : { date: "", actuals: {}, comments: {} },
   });
 }
 
@@ -560,7 +589,7 @@ async function readCloudState() {
     supabase.from("products").select("*").order("id"),
     supabase.from("suppliers").select("*").order("id"),
     supabase.from("stock_movements").select("*").order("id"),
-    supabase.from("app_state").select("value").eq("key", "inventory_draft").maybeSingle(),
+    supabase.from("app_state").select("key,value").in("key", ["inventory_draft", "recipes", "sales_imports", "reconciliation_draft"]),
   ]);
 
   const error = productsResult.error || suppliersResult.error || movementsResult.error || appStateResult.error;
@@ -625,7 +654,12 @@ async function writeCloudState() {
 
   const { error } = await supabase
     .from("app_state")
-    .upsert({ key: "inventory_draft", value: state.inventoryDraft || { date: "", items: {} } });
+    .upsert([
+      { key: "inventory_draft", value: state.inventoryDraft || { date: "", items: {} } },
+      { key: "recipes", value: state.recipes || [] },
+      { key: "sales_imports", value: state.salesImports || [] },
+      { key: "reconciliation_draft", value: state.reconciliationDraft || { date: "", actuals: {}, comments: {} } },
+    ]);
   if (error) throw error;
 }
 
@@ -1162,6 +1196,8 @@ function bindSelectBlur() {
 function resetViewState() {
   editingProductId = null;
   editingSupplierId = null;
+  editingRecipeId = null;
+  recipeDraftIngredients = [{ productId: "", quantity: "" }];
   productEditorOpen = window.innerWidth > 1100;
   productFilters = defaultProductFilters();
   reportFilters = defaultReportFilters();
@@ -1201,6 +1237,7 @@ function bindCurrentView() {
     incoming: bindIncoming,
     outgoing: bindOutgoing,
     inventory: bindInventory,
+    reconcile: bindReconciliation,
     suppliers: bindSuppliers,
     reports: bindReports,
   };
@@ -1224,6 +1261,7 @@ function renderSection() {
     incoming: renderIncoming,
     outgoing: renderOutgoing,
     inventory: renderInventory,
+    reconcile: renderReconciliation,
     suppliers: renderSuppliers,
     reports: renderReports,
   };
@@ -1789,6 +1827,487 @@ function inventorySummary(draft = state.inventoryDraft) {
       },
       { changedRows: 0, differenceValue: 0, hasDraft: Boolean(draft?.date) },
     );
+}
+
+function latestPendingSalesImport() {
+  return state.salesImports
+    .filter((salesImport) => !salesImport.appliedAt)
+    .slice()
+    .sort((first, second) => Number(second.id) - Number(first.id))[0] || null;
+}
+
+function recipeIngredientRows(recipe) {
+  return (recipe?.ingredients || [])
+    .map((ingredient) => ({
+      productId: Number(ingredient.productId),
+      quantity: Number(ingredient.quantity),
+    }))
+    .filter((ingredient) => productById(ingredient.productId) && positiveNumber(ingredient.quantity));
+}
+
+function recipeForSalesLine(lineName) {
+  const lineKey = productNameKey(lineName);
+  return state.recipes.find((recipe) => productNameKey(recipe.menuItem) === lineKey) || null;
+}
+
+function salesImportSummary(salesImport) {
+  const result = {
+    salesLines: salesImport?.lines?.length || 0,
+    linkedLines: 0,
+    unlinkedLines: [],
+    consumption: new Map(),
+  };
+
+  (salesImport?.lines || []).forEach((line) => {
+    const recipe = recipeForSalesLine(line.name);
+    const soldQuantity = Number(line.quantity || 0);
+    const ingredients = recipeIngredientRows(recipe);
+    if (!recipe || !ingredients.length || !positiveNumber(soldQuantity)) {
+      result.unlinkedLines.push(line);
+      return;
+    }
+
+    result.linkedLines += 1;
+    ingredients.forEach((ingredient) => {
+      const usage = roundStock(ingredient.quantity * soldQuantity);
+      result.consumption.set(
+        ingredient.productId,
+        roundStock((result.consumption.get(ingredient.productId) || 0) + usage),
+      );
+    });
+  });
+
+  return result;
+}
+
+function parseSalesQuantity(value) {
+  const normalized = String(value || "").replace(/\s/g, "").replace(",", ".");
+  const match = normalized.match(/-?\d+(?:\.\d+)?/);
+  return match ? Number(match[0]) : 0;
+}
+
+function parsePosterSales(rawText) {
+  const rows = String(rawText || "")
+    .split(/\r?\n/)
+    .map((row) => row.trim())
+    .filter(Boolean);
+  if (!rows.length) return [];
+
+  const delimiter = rows[0].includes("\t") ? "\t" : rows[0].includes(";") ? ";" : ",";
+  const firstColumns = rows[0].split(delimiter).map((value) => productNameKey(value));
+  const nameHeaderIndex = firstColumns.findIndex((value) => /product|item|name|товар|наименован|позици/.test(value));
+  const quantityHeaderIndex = firstColumns.findIndex((value) => /qty|quantity|amount|count|кол|колич|продан/.test(value));
+  const hasHeader = nameHeaderIndex >= 0 || quantityHeaderIndex >= 0;
+  const nameIndex = nameHeaderIndex >= 0 ? nameHeaderIndex : 0;
+  const quantityIndex = quantityHeaderIndex >= 0 ? quantityHeaderIndex : 1;
+  const lines = new Map();
+
+  rows.slice(hasHeader ? 1 : 0).forEach((row) => {
+    const columns = row.split(delimiter).map((value) => value.trim());
+    const name = columns[nameIndex] || "";
+    const quantity = parseSalesQuantity(columns[quantityIndex]);
+    if (!name || !positiveNumber(quantity)) return;
+    const key = productNameKey(name);
+    const current = lines.get(key) || { name, quantity: 0 };
+    current.quantity = roundStock(current.quantity + quantity);
+    lines.set(key, current);
+  });
+
+  return [...lines.values()];
+}
+
+function expectedClosingFor(product, summary) {
+  return roundStock(stockFor(product.id) - (summary.consumption.get(product.id) || 0));
+}
+
+function reconciliationDraftFor(productId) {
+  const draft = state.reconciliationDraft || { date: "", actuals: {}, comments: {} };
+  return {
+    actual: draft.actuals?.[String(productId)] ?? "",
+    comment: draft.comments?.[String(productId)] || "",
+  };
+}
+
+function recipeIngredientRow(ingredient = {}) {
+  return `
+    <div class="recipe-ingredient-row" data-recipe-ingredient>
+      <select name="ingredient-product" required>
+        <option value="">Choose product</option>
+        ${productOptions(ingredient.productId || "")}
+      </select>
+      <input name="ingredient-quantity" type="number" min="0" step="0.001" required value="${ingredient.quantity ?? ""}" placeholder="Per sold item" />
+      <span class="recipe-unit" data-recipe-unit>${ingredient.productId ? productById(ingredient.productId)?.unit || "" : ""}</span>
+      <button class="small-button icon-only recipe-remove-button" type="button" data-remove-recipe-ingredient aria-label="Remove ingredient" title="Remove ingredient">${icon("x")}</button>
+    </div>
+  `;
+}
+
+function renderReconciliation() {
+  const pendingImport = latestPendingSalesImport();
+  const summary = salesImportSummary(pendingImport);
+  const activeProducts = state.products.filter((product) => product.active);
+  const editingRecipe = editingRecipeId ? state.recipes.find((recipe) => recipe.id === editingRecipeId) : null;
+  const hasRecipes = state.recipes.length > 0;
+  const draft = state.reconciliationDraft || { date: "", actuals: {}, comments: {} };
+
+  return `
+    <div class="reconciliation-layout">
+      <article class="panel reconciliation-intro">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Monthly check</p>
+            <h3>Close the month accurately</h3>
+            <p class="section-description">Paste sales from Poster, connect menu items to recipe cards, then enter the physical count once. Nothing is written to stock until you confirm.</p>
+          </div>
+          ${pendingImport ? badge("Draft open", "warning") : badge("Ready for import", "neutral")}
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Step 1</p>
+            <h3>Poster sales</h3>
+          </div>
+          ${pendingImport ? `<button class="small-button" id="discard-sales-import" type="button">${icon("x")}Discard draft</button>` : ""}
+        </div>
+        <form class="sales-import-form" id="sales-import-form">
+          <label>
+            From
+            <input type="date" name="from" value="${pendingImport?.periodFrom || today()}" required />
+          </label>
+          <label>
+            To
+            <input type="date" name="to" value="${pendingImport?.periodTo || today()}" required />
+          </label>
+          <label class="wide">
+            Poster export
+            <textarea name="sales" rows="7" placeholder="Product\tQuantity\nBorjomi\t24\nCoca-Cola\t18" required>${pendingImport ? pendingImport.lines.map((line) => `${line.name}\t${line.quantity}`).join("\n") : ""}</textarea>
+            <span class="field-hint">Copy the product and quantity columns from Poster. Tab-separated, semicolon, and comma files are supported.</span>
+          </label>
+          <div class="form-actions wide">
+            <button class="primary-button" type="submit">${icon("upload")}Import sales draft</button>
+          </div>
+        </form>
+        ${pendingImport ? `
+          <div class="reconciliation-summary">
+            <div><span>Sales lines</span><strong>${summary.salesLines}</strong></div>
+            <div><span>Recipe coverage</span><strong>${summary.linkedLines} / ${summary.salesLines}</strong></div>
+            <div><span>Needs recipe</span><strong>${summary.unlinkedLines.length}</strong></div>
+          </div>
+          ${summary.unlinkedLines.length ? `
+            <div class="unlinked-sales">
+              <strong>Menu items without a recipe card</strong>
+              <div class="unlinked-sales-list">
+                ${summary.unlinkedLines.slice(0, 24).map((line) => `<span>${line.name} <b>${line.quantity}</b></span>`).join("")}
+              </div>
+              ${summary.unlinkedLines.length > 24 ? `<p>Plus ${summary.unlinkedLines.length - 24} more items.</p>` : ""}
+            </div>
+          ` : `<p class="reconciliation-success">All imported sales lines have recipe cards.</p>`}
+        ` : ""}
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Step 2</p>
+            <h3>Recipe cards</h3>
+          </div>
+          <button class="small-button" id="open-recipe-editor" type="button">${icon("plus")}Add recipe</button>
+        </div>
+        ${editingRecipeId !== null ? `
+          <form class="recipe-form" id="recipe-form">
+            <input type="hidden" name="id" value="${editingRecipe?.id || ""}" />
+            <label class="wide">
+              Poster menu item
+              <input name="menu-item" value="${editingRecipe?.menuItem || ""}" placeholder="Use the exact name from Poster" required />
+            </label>
+            <div class="recipe-ingredients wide">
+              <div class="recipe-ingredient-heading"><strong>Ingredient</strong><strong>Quantity per sold item</strong><span>Unit</span></div>
+              <div id="recipe-ingredient-list">
+                ${(editingRecipe ? recipeIngredientRows(editingRecipe) : recipeDraftIngredients).map((ingredient) => recipeIngredientRow(ingredient)).join("")}
+              </div>
+              <button class="small-button" id="add-recipe-ingredient" type="button">${icon("plus")}Add ingredient</button>
+            </div>
+            <div class="form-actions wide">
+              <button class="ghost-button" id="close-recipe-editor" type="button">Cancel</button>
+              <button class="primary-button" type="submit">${icon("check")}Save recipe card</button>
+            </div>
+          </form>
+        ` : hasRecipes ? `
+          <div class="recipe-list">
+            ${state.recipes.slice().sort((a, b) => a.menuItem.localeCompare(b.menuItem)).map((recipe) => `
+              <div class="recipe-list-row">
+                <div><strong>${recipe.menuItem}</strong><span>${recipeIngredientRows(recipe).length} ingredient${recipeIngredientRows(recipe).length === 1 ? "" : "s"}</span></div>
+                <div class="row-actions">
+                  <button class="small-button icon-only" data-edit-recipe="${recipe.id}" type="button" aria-label="Edit recipe" title="Edit recipe">${icon("edit")}</button>
+                  <button class="small-button icon-only danger-icon-button" data-delete-recipe="${recipe.id}" type="button" aria-label="Delete recipe" title="Delete recipe">${icon("trash")}</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        ` : `<div class="empty-state"><strong>No recipe cards yet</strong><span>Create a card for each Poster item that consumes inventory. Do not estimate portion sizes: use the kitchen's actual portion or bottle measure.</span></div>`}
+      </article>
+
+      ${pendingImport ? `
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Step 3</p>
+              <h3>Physical count</h3>
+              <p class="section-description">Expected closing is calculated from receipts, current movements, and this Poster draft. Enter the real shelf count for every product.</p>
+            </div>
+          </div>
+          <form id="reconciliation-form">
+            <div class="reconciliation-date-row">
+              <label>
+                Count date
+                <input type="date" name="date" value="${draft.date || pendingImport.periodTo || today()}" required />
+              </label>
+              <span>${pendingImport.periodFrom} - ${pendingImport.periodTo}</span>
+            </div>
+            <div class="table-scroll reconciliation-table-scroll">
+              <table>
+                <thead><tr><th>Product</th><th class="numeric">Expected closing</th><th class="numeric">Actual count</th><th class="numeric">Difference</th><th>Comment</th></tr></thead>
+                <tbody>
+                  ${activeProducts.map((product) => {
+                    const expected = expectedClosingFor(product, summary);
+                    const countDraft = reconciliationDraftFor(product.id);
+                    const actualValue = countDraft.actual;
+                    const hasActual = actualValue !== "" && actualValue !== null && actualValue !== undefined;
+                    const difference = hasActual ? roundStock(Number(actualValue) - expected) : null;
+                    return `
+                      <tr data-reconciliation-row="${product.id}">
+                        <td><strong>${product.name}</strong><span class="table-unit">${product.unit}</span></td>
+                        <td class="numeric">${expected}</td>
+                        <td class="numeric"><input class="table-input numeric" name="actual-${product.id}" type="number" min="0" step="0.001" value="${actualValue}" placeholder="Count" required /></td>
+                        <td class="numeric ${difference && difference !== 0 ? "danger-text" : ""}" data-reconciliation-difference="${product.id}">${difference ?? "-"}</td>
+                        <td><input class="table-input comment-input" name="comment-${product.id}" value="${countDraft.comment}" placeholder="Optional" /></td>
+                      </tr>
+                    `;
+                  }).join("")}
+                </tbody>
+              </table>
+            </div>
+            <div class="panel-footer reconciliation-footer">
+              <button class="ghost-button" id="save-reconciliation-draft" type="button">${icon("file")}Save draft</button>
+              <button class="primary-button" type="submit">${icon("check")}Confirm monthly check</button>
+            </div>
+          </form>
+        </article>
+      ` : ""}
+    </div>
+  `;
+}
+
+function collectReconciliationDraft(form) {
+  const actuals = {};
+  const comments = {};
+  state.products.filter((product) => product.active).forEach((product) => {
+    actuals[String(product.id)] = form[`actual-${product.id}`].value;
+    comments[String(product.id)] = form[`comment-${product.id}`].value.trim();
+  });
+  return { date: form.date.value || today(), actuals, comments };
+}
+
+function bindReconciliation() {
+  const salesImportForm = document.querySelector("#sales-import-form");
+  salesImportForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const lines = parsePosterSales(form.get("sales"));
+    if (!lines.length) {
+      showNotice("No sales lines found. Paste the product and quantity columns from Poster.");
+      return;
+    }
+    if (form.get("from") > form.get("to")) {
+      showNotice("The start date must be before the end date.");
+      return;
+    }
+    const overlapsConfirmedPeriod = state.salesImports.some((item) => item.appliedAt
+      && form.get("from") <= item.periodTo
+      && form.get("to") >= item.periodFrom);
+    if (overlapsConfirmedPeriod) {
+      showNotice("This period overlaps a confirmed Poster import. Use a separate, non-overlapping period to avoid double-counting sales.");
+      return;
+    }
+    const existing = latestPendingSalesImport();
+    const newImport = {
+      id: existing?.id || Date.now(),
+      periodFrom: form.get("from"),
+      periodTo: form.get("to"),
+      importedAt: new Date().toISOString(),
+      lines,
+      appliedAt: null,
+    };
+    state.salesImports = existing
+      ? state.salesImports.map((item) => (item.id === existing.id ? newImport : item))
+      : [...state.salesImports, newImport];
+    state.reconciliationDraft = { date: newImport.periodTo, actuals: {}, comments: {} };
+    saveState(`${lines.length} Poster sales lines saved as a draft.`);
+  });
+
+  document.querySelector("#discard-sales-import")?.addEventListener("click", () => {
+    const pendingImport = latestPendingSalesImport();
+    if (!pendingImport || !confirm("Discard this Poster sales draft? No stock has been changed.")) return;
+    state.salesImports = state.salesImports.filter((item) => item.id !== pendingImport.id);
+    state.reconciliationDraft = { date: "", actuals: {}, comments: {} };
+    saveState("Poster sales draft discarded.");
+  });
+
+  document.querySelector("#open-recipe-editor")?.addEventListener("click", () => {
+    editingRecipeId = 0;
+    recipeDraftIngredients = [{ productId: "", quantity: "" }];
+    notice = "";
+    renderShell();
+  });
+
+  document.querySelector("#close-recipe-editor")?.addEventListener("click", () => {
+    editingRecipeId = null;
+    recipeDraftIngredients = [{ productId: "", quantity: "" }];
+    renderShell();
+  });
+
+  document.querySelectorAll("[data-edit-recipe]").forEach((button) => {
+    button.addEventListener("click", () => {
+      editingRecipeId = Number(button.dataset.editRecipe);
+      notice = "";
+      renderShell();
+    });
+  });
+
+  document.querySelectorAll("[data-delete-recipe]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const recipeId = Number(button.dataset.deleteRecipe);
+      const recipe = state.recipes.find((item) => item.id === recipeId);
+      if (!recipe || !confirm(`Delete the recipe card for ${recipe.menuItem}?`)) return;
+      state.recipes = state.recipes.filter((item) => item.id !== recipeId);
+      saveState("Recipe card deleted.");
+    });
+  });
+
+  const recipeForm = document.querySelector("#recipe-form");
+  recipeForm?.querySelector("#add-recipe-ingredient")?.addEventListener("click", () => {
+    const recipeList = recipeForm.querySelector("#recipe-ingredient-list");
+    recipeList.insertAdjacentHTML("beforeend", recipeIngredientRow());
+    bindRecipeIngredientRow(recipeList.lastElementChild);
+  });
+  recipeForm?.querySelectorAll("[data-recipe-ingredient]").forEach((row) => bindRecipeIngredientRow(row));
+  recipeForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const menuItem = recipeForm.elements["menu-item"].value.trim();
+    const recipeId = Number(recipeForm.elements.id.value || 0);
+    const ingredients = [...recipeForm.querySelectorAll("[data-recipe-ingredient]")]
+      .map((row) => ({
+        productId: Number(row.querySelector('[name="ingredient-product"]').value),
+        quantity: Number(row.querySelector('[name="ingredient-quantity"]').value),
+      }))
+      .filter((ingredient) => productById(ingredient.productId) && positiveNumber(ingredient.quantity));
+    const duplicate = state.recipes.find((recipe) => productNameKey(recipe.menuItem) === productNameKey(menuItem) && recipe.id !== recipeId);
+    if (!menuItem || !ingredients.length) {
+      showNotice("Add the exact Poster menu item and at least one ingredient with a quantity.");
+      return;
+    }
+    if (duplicate) {
+      showNotice("A recipe card for this Poster item already exists.");
+      return;
+    }
+    const recipe = { id: recipeId || nextId(state.recipes), menuItem, ingredients, updatedAt: new Date().toISOString() };
+    state.recipes = recipeId ? state.recipes.map((item) => (item.id === recipeId ? recipe : item)) : [...state.recipes, recipe];
+    editingRecipeId = null;
+    recipeDraftIngredients = [{ productId: "", quantity: "" }];
+    saveState("Recipe card saved.");
+  });
+
+  const reconciliationForm = document.querySelector("#reconciliation-form");
+  if (!reconciliationForm) return;
+  const pendingImport = latestPendingSalesImport();
+  const summary = salesImportSummary(pendingImport);
+  const recalculate = () => {
+    state.products.filter((product) => product.active).forEach((product) => {
+      const rawActual = reconciliationForm[`actual-${product.id}`].value;
+      const differenceCell = reconciliationForm.querySelector(`[data-reconciliation-difference="${product.id}"]`);
+      if (rawActual === "") {
+        differenceCell.textContent = "-";
+        differenceCell.classList.remove("danger-text");
+        return;
+      }
+      const difference = roundStock(Number(rawActual) - expectedClosingFor(product, summary));
+      differenceCell.textContent = difference;
+      differenceCell.classList.toggle("danger-text", difference !== 0);
+    });
+  };
+  reconciliationForm.querySelectorAll('input[type="number"]').forEach((input) => input.addEventListener("input", recalculate));
+  reconciliationForm.querySelector("#save-reconciliation-draft")?.addEventListener("click", () => {
+    state.reconciliationDraft = collectReconciliationDraft(reconciliationForm);
+    saveState("Monthly check draft saved.");
+  });
+  reconciliationForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const draft = collectReconciliationDraft(reconciliationForm);
+    const missingCount = state.products.filter((product) => product.active).filter((product) => draft.actuals[String(product.id)] === "").length;
+    if (missingCount) {
+      showNotice(`Enter the physical count for all products. ${missingCount} still need a count.`);
+      return;
+    }
+    const finalSummary = salesImportSummary(pendingImport);
+    if (finalSummary.unlinkedLines.length) {
+      showNotice(`Create recipe cards for all imported menu items before confirming. ${finalSummary.unlinkedLines.length} still need a recipe.`);
+      return;
+    }
+    const hasInvalidActual = state.products
+      .filter((product) => product.active)
+      .some((product) => !nonNegativeNumber(draft.actuals[String(product.id)]));
+    if (hasInvalidActual) {
+      showNotice("Physical stock must be zero or a positive number.");
+      return;
+    }
+    const adjustments = state.products.filter((product) => product.active).map((product) => ({
+      product,
+      expected: expectedClosingFor(product, finalSummary),
+      actual: Number(draft.actuals[String(product.id)]),
+      comment: draft.comments[String(product.id)],
+    })).filter((item) => roundStock(item.actual - item.expected) !== 0);
+    const confirmed = confirm(`Confirm this monthly check? Poster sales will create ${finalSummary.consumption.size} usage entries and ${adjustments.length} stock adjustment(s). This cannot be undone automatically.`);
+    if (!confirmed) return;
+
+    finalSummary.consumption.forEach((quantity, productId) => {
+      const product = productById(productId);
+      if (!product || !positiveNumber(quantity)) return;
+      state.movements.push({
+        id: nextId(state.movements), type: "outgoing", productId: product.id, date: pendingImport.periodTo,
+        quantity: -Math.abs(quantity), unitPrice: Number(product.price), reason: "Poster sales",
+        comment: `Poster sales ${pendingImport.periodFrom} - ${pendingImport.periodTo}`,
+      });
+    });
+    adjustments.forEach(({ product, expected, actual, comment }) => {
+      state.movements.push({
+        id: nextId(state.movements), type: "adjustment", productId: product.id, date: draft.date,
+        quantity: roundStock(actual - expected), unitPrice: Number(product.price), reason: "Monthly check", comment,
+      });
+    });
+    state.salesImports = state.salesImports.map((item) => item.id === pendingImport.id ? { ...item, appliedAt: new Date().toISOString() } : item);
+    state.reconciliationDraft = { date: "", actuals: {}, comments: {} };
+    saveState("Monthly check confirmed. Poster usage and count adjustments are saved in history.");
+  });
+}
+
+function bindRecipeIngredientRow(row) {
+  if (!row) return;
+  const select = row.querySelector('[name="ingredient-product"]');
+  const unit = row.querySelector("[data-recipe-unit]");
+  const updateUnit = () => { unit.textContent = productById(select.value)?.unit || ""; };
+  select?.addEventListener("change", updateUnit);
+  row.querySelector("[data-remove-recipe-ingredient]")?.addEventListener("click", () => {
+    const recipeList = row.parentElement;
+    if (recipeList.children.length === 1) {
+      row.querySelector('[name="ingredient-product"]').value = "";
+      row.querySelector('[name="ingredient-quantity"]').value = "";
+      updateUnit();
+      return;
+    }
+    row.remove();
+  });
 }
 
 function renderSuppliers() {
