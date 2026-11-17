@@ -117,6 +117,39 @@ const seedState = {
   },
 };
 
+// These are the items that can be identified with confidence as purchased stock
+// from the existing Poster sales catalogue. Kitchen dishes stay out until recipes
+// and ingredient quantities are available.
+const posterAssortment = [
+  { name: "Borjomi", category: "Beverages", unit: "piece", aliases: ["borjomi"] },
+  { name: "Borjomi lemonade", category: "Beverages", unit: "piece", aliases: ["borjomi lemonade"] },
+  { name: "Coca-Cola", category: "Beverages", unit: "piece", aliases: ["coca-cola"] },
+  { name: "Coca-Cola Zero", category: "Beverages", unit: "piece", aliases: ["coca-cola zero"] },
+  { name: "Juice", category: "Beverages", unit: "piece", aliases: ["juice"] },
+  { name: "Shavi Lomi draft beer", category: "Alcohol", unit: "liter", aliases: ["shavi lomi"] },
+  { name: "Kazbegi draft beer", category: "Alcohol", unit: "liter", aliases: ["kazbegi"] },
+  { name: "Stolichnaya vodka", category: "Alcohol", unit: "liter", aliases: ["stolichnaya vodka"] },
+  { name: "Finlandia vodka", category: "Alcohol", unit: "liter", aliases: ["finlandia vodka"] },
+  { name: "Absolut vodka", category: "Alcohol", unit: "liter", aliases: ["absolut vodka"] },
+  { name: "Jameson whiskey", category: "Alcohol", unit: "liter", aliases: ["jameson whiskey"] },
+  { name: "Grape chacha", category: "Alcohol", unit: "liter", aliases: ["grape chacha"] },
+  { name: "Honey chacha", category: "Alcohol", unit: "liter", aliases: ["honey chacha"] },
+  { name: "Rkatsiteli draft wine", category: "Alcohol", unit: "liter", aliases: ["rkatsiteli draft wine"] },
+  { name: "Mtsvane Kakheti draft wine", category: "Alcohol", unit: "liter", aliases: ["mtsvane kakheti draft wine"] },
+  { name: "Rkatsiteli wine 200 ml", category: "Alcohol", unit: "piece", aliases: ["rkatsiteli wine 200 ml"] },
+  { name: "Saperavi wine 200 ml", category: "Alcohol", unit: "piece", aliases: ["saperavi wine 200 ml"] },
+  { name: "Akhasheni wine 200 ml", category: "Alcohol", unit: "piece", aliases: ["akhasheni wine 200 ml"] },
+  { name: "Food container", category: "Packaging", unit: "piece", aliases: ["food container", "container"] },
+  { name: "Large takeaway box", category: "Packaging", unit: "piece", aliases: ["large takeaway box", "large box"] },
+  { name: "French fries", category: "Frozen goods", unit: "kg", aliases: ["french fries"] },
+  { name: "Pelmeni", category: "Frozen goods", unit: "package", aliases: ["pelmeni"] },
+  { name: "Vareniki with potato", category: "Frozen goods", unit: "package", aliases: ["vareniki with potato"] },
+  { name: "Vareniki with cheese", category: "Frozen goods", unit: "package", aliases: ["vareniki with cheese"] },
+  { name: "Ketchup", category: "Groceries", unit: "package", aliases: ["ketchup"] },
+  { name: "Olives", category: "Groceries", unit: "kg", aliases: ["olives"] },
+  { name: "Sour cream", category: "Dairy", unit: "kg", aliases: ["sour cream"] },
+];
+
 const sections = [
   { id: "overview", label: "Overview" },
   { id: "products", label: "Products" },
@@ -165,6 +198,8 @@ const georgianTranslations = {
   "Catalog": "კატალოგი",
   "Product list": "პროდუქტების სია",
   "Add product": "პროდუქტის დამატება",
+  "Import Poster assortment": "Poster-ის ასორტიმენტის იმპორტი",
+  "Poster assortment is already in the catalog.": "Poster-ის ასორტიმენტი უკვე კატალოგშია.",
   "Search products": "პროდუქტების ძიება",
   "Name": "დასახელება",
   "Category": "კატეგორია",
@@ -721,6 +756,44 @@ async function signOut() {
 
 function nextId(items) {
   return items.length ? Math.max(...items.map((item) => item.id)) + 1 : 1;
+}
+
+function productNameKey(value) {
+  return String(value || "")
+    .toLocaleLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function missingPosterAssortment() {
+  const existingNames = new Set(state.products.map((product) => productNameKey(product.name)));
+  return posterAssortment.filter((product) => {
+    const names = [product.name, ...product.aliases].map(productNameKey);
+    return !names.some((name) => existingNames.has(name));
+  });
+}
+
+function addPosterAssortment() {
+  const productsToAdd = missingPosterAssortment();
+  if (!productsToAdd.length) {
+    showNotice("Poster assortment is already in the catalog.");
+    return;
+  }
+
+  let productId = nextId(state.products);
+  productsToAdd.forEach(({ aliases, ...product }) => {
+    state.products.push({
+      id: productId,
+      ...product,
+      openingStock: 0,
+      minStock: 0,
+      price: 0,
+      active: true,
+    });
+    productId += 1;
+  });
+  saveState(`${productsToAdd.length} Poster items added with zero opening stock.`);
 }
 
 function today() {
@@ -1323,6 +1396,7 @@ function renderProducts() {
   const visibleProducts = filteredProducts();
   const categories = productCategories();
   const units = productUnits();
+  const posterProductsToAdd = missingPosterAssortment();
   const hasActiveFilters = Boolean(productFilters.search || productFilters.category !== "all" || productFilters.status !== "all");
   const showSideProductEditor = productEditorOpen && !editingProduct;
   return `
@@ -1333,7 +1407,10 @@ function renderProducts() {
             <p class="eyebrow">Catalog</p>
             <h3>Product list</h3>
           </div>
-          ${productEditorOpen ? "" : `<button class="small-button" id="open-product-editor" type="button">${icon("plus")}Add product</button>`}
+          <div class="row-actions">
+            ${posterProductsToAdd.length ? `<button class="small-button" id="import-poster-assortment" type="button">${icon("plus")}Import Poster assortment</button>` : ""}
+            ${productEditorOpen ? "" : `<button class="small-button" id="open-product-editor" type="button">${icon("plus")}Add product</button>`}
+          </div>
         </div>
         <form class="table-toolbar" id="products-toolbar">
           <label class="search-field">
@@ -2047,6 +2124,10 @@ function bindProducts() {
     editingProductId = null;
     notice = "";
     renderShell();
+  });
+
+  document.querySelector("#import-poster-assortment")?.addEventListener("click", () => {
+    addPosterAssortment();
   });
 
   productForm?.addEventListener("submit", (event) => {
