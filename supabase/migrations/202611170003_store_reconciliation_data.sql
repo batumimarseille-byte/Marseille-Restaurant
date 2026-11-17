@@ -1,5 +1,5 @@
--- Recipes, imported Poster sales, and the monthly count draft are stored in
--- app_state so the initial inventory schema remains backwards compatible.
+-- The Poster menu catalog, recipes, imported sales, and the monthly count draft
+-- are stored in app_state so the initial inventory schema remains backwards compatible.
 alter table public.app_state
   drop constraint if exists app_state_key_check;
 
