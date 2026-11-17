@@ -633,7 +633,8 @@ h1 {
 }
 
 .topbar-actions,
-.panel-footer {
+.panel-footer,
+.inline-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;

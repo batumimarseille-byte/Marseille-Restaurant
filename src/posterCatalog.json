@@ -1,0 +1,2588 @@
+[
+  {
+    "posterId": 425,
+    "name": "9 mile 0,5L",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 424,
+    "name": "9 mile 1L",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 253,
+    "name": "Absolut 0.5L / აბსოლუტი 0.5ლ / Абсолют 0,5л",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 211,
+    "name": "Absolut 1L / აბსოლუტი 1ლ / Абсолют 1л",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 254,
+    "name": "Absolut 50ml / აბსოლუტი 50მლ / Абсолют 50 мл",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 193,
+    "name": "Acacia chacha 1L / აკაციის ჭაჭა 1ლ / Чача из акации 1л",
+    "group": "Pouring Chacha / ჩამოსასხმელი ჭაჭა / Разливная чача",
+    "price": 0.0
+  },
+  {
+    "posterId": 196,
+    "name": "Acacia chacha 50g / აკაციის ჭაჭა 50გრ / Чача из акации 50 г",
+    "group": "Pouring Chacha / ჩამოსასხმელი ჭაჭა / Разливная чача",
+    "price": 0.0
+  },
+  {
+    "posterId": 445,
+    "name": "Adios",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 223,
+    "name": "Adjarian khachapuri / აჭარული ხაჭაპური /  Хачапури по аджраский",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 34,
+    "name": "Ajabsandali / აჯაბსანდალი / Аджапсандали",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 43,
+    "name": "Ajarian khachapuri / აჭარული ხაჭაპური / Хачапури по аджарский",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 96,
+    "name": "Ajika / აჯიკა / Аджика",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 248,
+    "name": "Akhasheni 1L / ახაშენი 1ლ / Ахашени 1л",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 251,
+    "name": "Akhasheni 200 ml / ახაშენი 200მლ / Ахашени 200 мл",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 247,
+    "name": "Akhasheni bottled 0.5L / ახაშენი ჩამოსასხმელი 0.5ლ / Ахашени на разлив 0,5л",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 183,
+    "name": "Amreicano / ამერიკანო / Американо",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 217,
+    "name": "Antricod 600gr meat / ანტრიკოტი 600 გრამი ხორცი / Антрикот 600 гр мясо",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 240,
+    "name": "Aperol Spirtz",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 199,
+    "name": "Askaneli 0.5l / ასკანელი 0.5ლ / Асканели 0,5л",
+    "group": "Cognac / კონიაკი / Коньяк",
+    "price": 0.0
+  },
+  {
+    "posterId": 431,
+    "name": "B-52",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 220,
+    "name": "Baghe / ბაჟე / Баже",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 149,
+    "name": "Baklava / ბაქლავა / Пахлава",
+    "group": "Dessert/ დესერტი / Десерты",
+    "price": 0.0
+  },
+  {
+    "posterId": 126,
+    "name": "Barabulka 100gr / ბარაბულკა 100გრ / Барабулька 100гр",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 273,
+    "name": "barabulka 50gr / ბარაბულკა 50გრ / Барабулька 50гр",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 87,
+    "name": "Barbecue xorovaci / მწვადი ხოროვაცი / Шашлык хоровац",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 191,
+    "name": "Bavaria / ბავარია (ჩამოსასხმელი) / Бавария на разлив",
+    "group": "Beer / ლუდი / Пиво",
+    "price": 0.0
+  },
+  {
+    "posterId": 141,
+    "name": "Beef Stroganoff / ბიფსტროგანოვი / Бефстроганов",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 209,
+    "name": "Beluga 1L / ბელუგა 1ლ / Белуга 1Л",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 438,
+    "name": "Black Russian",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 358,
+    "name": "Blanc de blancs milledimato",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 446,
+    "name": "Blue Hawaii",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 98,
+    "name": "Boiled potato / მოხარშული კარტოფილი / Картофель отваренный",
+    "group": "Side dishes / გარნირი / Гарниры",
+    "price": 0.0
+  },
+  {
+    "posterId": 33,
+    "name": "Boiled tongue / ენა მოხარშული / Язык отварной",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 63,
+    "name": "Borano / ბორანო / Борано",
+    "group": "Ajarian goods / აჭარული კერძები / Аджарские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 124,
+    "name": "Borjomi / ბორჯომი / Борджоми",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 180,
+    "name": "Borjomi lemonade / ბორჯომის ლიმონათი / лимонад Боржоми",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 437,
+    "name": "Boston Sour",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 215,
+    "name": "Bourbon Four Roses 1L",
+    "group": "Tequila / ტეკილა / Текила",
+    "price": 0.0
+  },
+  {
+    "posterId": 36,
+    "name": "Bread / პური / Хлеб",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 37,
+    "name": "Bread assort / პურის ასორტი / Хлебное ассорти",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 102,
+    "name": "Buckwheat / წიწიბურა / Гречка",
+    "group": "Side dishes / გარნირი / Гарниры",
+    "price": 0.0
+  },
+  {
+    "posterId": 148,
+    "name": "Burmese / ბურმე / Бурмэ",
+    "group": "Dessert/ დესერტი / Десерты",
+    "price": 0.0
+  },
+  {
+    "posterId": 14,
+    "name": "Caesar salad / სალათი ცეზარი / Салат цезарь",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 31,
+    "name": "Canning / წნილი / Соления",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 35,
+    "name": "Caviar / ხიზილალა / Икра",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 434,
+    "name": "Chacha Sour",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 85,
+    "name": "Chalagaji / ჩალაღაჯი  / Чалагаджи",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 71,
+    "name": "Chanakhi / ხბოს ჩანახი / Чанахи",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 22,
+    "name": "Cheese assort / ყველის ასორტი / Сырное ассорти",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 360,
+    "name": "Chelti rose",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 88,
+    "name": "Chick / წიწილა / Цыпленок",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 70,
+    "name": "Chick chkmerulad / წიწილა ჩქმერულად / Цыпленок по чкмерули",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 65,
+    "name": "Chicken boiled / დედალი მოხარშული / Курица отваренная",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 115,
+    "name": "Chicken broth / ქათმის ბულიონი / Куринный бульон",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 54,
+    "name": "Chicken broth / ჩაქაფული / Чакапули",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 66,
+    "name": "Chicken chkmeruli / დედალი-ჩქმერულად / Курица по чкмерули",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 17,
+    "name": "Chicken salad / სალათი ქათმის / Куринный салат",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 68,
+    "name": "Chik in plum sauce / წიწილა ტყემალში / Цыпленок в ткемали",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 67,
+    "name": "Chik tabaka / წიწილა ტაბაკა / Цыпленок табака",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 62,
+    "name": "Chirbuli / ჩირბული / Чирбули",
+    "group": "Ajarian goods / აჭარული კერძები / Аджарские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 352,
+    "name": "Chistie rosi 50mg",
+    "group": "Cognac / კონიაკი / Коньяк",
+    "price": 0.0
+  },
+  {
+    "posterId": 53,
+    "name": "Chixirtma / ჩიხირთმა / Чихиртма",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 39,
+    "name": "Chvishtari / ჭვიშტარი / Чвиштари",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 125,
+    "name": "Coca-cola / კოკა-კოლა / Кока-кола",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 120,
+    "name": "Compote / კომპოტი / Компот",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 241,
+    "name": "Cuba Libre",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 418,
+    "name": "Double espresso",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 222,
+    "name": "Eggplant with walnuts / ბადრიჯანი ნიგვზით / Баклажаны с грецкими орехами",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 114,
+    "name": "Eggs like Marseille / კვერცხი მარსელურად / Яичница по Марсельски",
+    "group": "Firm dishes / საფირმო კერძები / Фирменные блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 60,
+    "name": "Fish soup - Ukha / თევზის წვნიანი / Уха",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 419,
+    "name": "Flat white",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 7,
+    "name": "French eggplant / ბადრიჯანი ფრანგულად / Баклажаны по французски",
+    "group": "Firm dishes / საფირმო კერძები / Фирменные блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 116,
+    "name": "Fried potatoes with bacon and sulguni / შემწვარი კარტოფილი ბეკონით და სულგუნით / Жаренная картошка с беконом и сулгуни",
+    "group": "Side dishes / გარნირი / Гарниры",
+    "price": 0.0
+  },
+  {
+    "posterId": 80,
+    "name": "Fried sulguni on ketsi / შემწვარი სულგუნი კეცზე / Жаренный суглуни на кеци",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 117,
+    "name": "Fruit assort (big) / ხილის ასორტი (დიდი) / Фруктовое ассорти (большое)",
+    "group": "Dessert/ დესერტი / Десерты",
+    "price": 0.0
+  },
+  {
+    "posterId": 118,
+    "name": "Fruit assort (small) / ხილის ასორტი (პატარა) / Фруктовое ассорти (маленькое)",
+    "group": "Dessert/ დესერტი / Десерты",
+    "price": 0.0
+  },
+  {
+    "posterId": 24,
+    "name": "Gebjalia / გებჟალია / Гебжалия",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 440,
+    "name": "Gin Fizz",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 237,
+    "name": "Gin tonic",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 421,
+    "name": "Glacé coffee",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 351,
+    "name": "Gray goose 50ml",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 13,
+    "name": "Greek salad / ბერძნული სალათი / Греческий салат",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 59,
+    "name": "Green borscht / მწვანე ბორში / Зелегый борщ",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 113,
+    "name": "Green salad / მწვანე სალათი / Салат зеленый",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 160,
+    "name": "Guruli adjika / გურული აჯიკა / Гурули аджика",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 32,
+    "name": "Herbs / მწვანილები / Зелень",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 73,
+    "name": "Iaxni / იახნი / Яхни",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 119,
+    "name": "Ice cream 200g / ნაყინი / Мороженое",
+    "group": "Dessert/ დესერტი / Десерты",
+    "price": 0.0
+  },
+  {
+    "posterId": 20,
+    "name": "Imeretian cheese / ყველი იმერული / Сыр имеретинский",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 40,
+    "name": "Imeretian khachapuri / იმერული ხაჭაპური / Хачапури имеретинский",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 278,
+    "name": "Jack Daniel's 50ml",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 86,
+    "name": "Kebab / ქაბაბი / Кебаб",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 61,
+    "name": "Khashlama / ხაშლამა / Хашлама",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 78,
+    "name": "Kiev cutlet / კიევური კოტლეტი / Котлета по Киевский",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 90,
+    "name": "Kindzmari / ქინძმარი / Киндзмари",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 27,
+    "name": "Kuchmachi / კუჭმაჭი / Кучмачи",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 79,
+    "name": "Langeti / ლანგეტი / Лангет",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 420,
+    "name": "latte macchiato",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 42,
+    "name": "Lazian khachapuri / ხაჭაპური ლაზური / Хачапури лазури",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 26,
+    "name": "Leeks / პრასი / Лук-порей",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 430,
+    "name": "Lime Drop Shot",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 44,
+    "name": "Lobiani khachapuri / ლობიანი ხაჭაპური / Хачапури с фасолью",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 444,
+    "name": "Long Island Energy",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 239,
+    "name": "Long Island Iced Tea",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 238,
+    "name": "Mai-tai",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 214,
+    "name": "Maxximo De Codorniz Silver 1L",
+    "group": "Tequila / ტეკილა / Текила",
+    "price": 0.0
+  },
+  {
+    "posterId": 38,
+    "name": "Mchadi / მჭადი / Мчади",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 111,
+    "name": "Meat assort / ხორცის ასორტი / Мясное ассорти",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 52,
+    "name": "Meat dumplings / პილმენი / Пельмени",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 41,
+    "name": "Megrelian Khachapuri / მეგრული ხაჭაპური / Хачапури менгрелский",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 423,
+    "name": "Mendeleev 0,5L",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 422,
+    "name": "Mendeleev 1L",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 95,
+    "name": "Mexican souse / მექსიკური სოუსი / Мексиканский соус",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 55,
+    "name": "Mushroom soup / სოკოს სუპი / Грибной суп",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 23,
+    "name": "Nadugi / ნადუღი / Надуги",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 92,
+    "name": "Nasharafi / ნაშარაფი / Нашарап",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 242,
+    "name": "Negroni",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 435,
+    "name": "New York Sour",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 29,
+    "name": "Olive / ზეთის ხილი / Маслины",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 15,
+    "name": "Olivie salad / სალათი ოლივიე / Салат оливье",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 6,
+    "name": "Omlette Marseille / ომლეტი მარსელი / Омлет Марсель",
+    "group": "Firm dishes / საფირმო კერძები / Фирменные блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 46,
+    "name": "pancakes with meat / ბლინები ხორცით / Блины с мясом",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 47,
+    "name": "pancakes with mushroom / ბლინები სოკოთი / Блины с грибами",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 233,
+    "name": "Pina colada",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 51,
+    "name": "Pizza combined / კომპინირებული პიცა / Пицца комбинированная",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 48,
+    "name": "Pizza Margarita / პიცა მარგარიტა / Пица Маргарита",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 10,
+    "name": "Pizza Marseille / პიცა მარსელი / Пицца Марсель",
+    "group": "Firm dishes / საფირმო კერძები / Фирменные блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 49,
+    "name": "Pizza with mushroom / პიცა სოკოთი / Пицца с грибами",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 112,
+    "name": "Pkhali assort / ფხალის ასორტი / Ассорти из пхали",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 89,
+    "name": "Plums / ტყემალი / Ткемали",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 76,
+    "name": "Pork ojakhuri / ღორის ოჯახურითა და ბოსტნეულით / Оджахури со свининой",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 99,
+    "name": "Potato fries / კარტოფილი ფრი / Картофель фри",
+    "group": "Side dishes / გარნირი / Гарниры",
+    "price": 0.0
+  },
+  {
+    "posterId": 97,
+    "name": "Potatoe family like / კარტოფილი ოჯახურად / Картофель по семейному",
+    "group": "Side dishes / გარნირი / Гарниры",
+    "price": 0.0
+  },
+  {
+    "posterId": 449,
+    "name": "Red label 1L",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 100,
+    "name": "Rice / ბრინჯი / Рис",
+    "group": "Side dishes / გარნირი / Гарниры",
+    "price": 0.0
+  },
+  {
+    "posterId": 101,
+    "name": "Rice with vegetables / ბრინჯი ბოსტნეულით / Рис с овощами",
+    "group": "Side dishes / გარნირი / Гарниры",
+    "price": 0.0
+  },
+  {
+    "posterId": 436,
+    "name": "Rum Sour",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 11,
+    "name": "Salad / სალათი / Салат",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 18,
+    "name": "Salad with crab / სალათი კიბორჩხალით / Крабовый салат",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 12,
+    "name": "Salad with walnuts / სალათი ნიგვზით / Салат с орехами",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 74,
+    "name": "Sarma / სარმა / Сарма",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 91,
+    "name": "Satsebeli / საწებელი / Сацебели",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 28,
+    "name": "Sausages assort / ძეხვის ასორტი / Колбасное ассорти",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 81,
+    "name": "Shampinion on ketsi / შამპინიონი კეცზე / Шампиньоны на кеци",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 64,
+    "name": "Sinori / სინორი / Синьоры",
+    "group": "Ajarian goods / აჭარული კერძები / Аджарские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 84,
+    "name": "Skewered chicken / ქათმის მწვადი / Куринный шашлык",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 82,
+    "name": "Skewered pork / ღორის მწვადი / Свинной шашлык",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 83,
+    "name": "Skewered veal / ხბოს მწვადი / Телячий шашлык",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 21,
+    "name": "Smoked cheese / შებოლილი ყველი / Сыр копченный",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 56,
+    "name": "Soup glexuri / სუპი გლეხური / Суп крестьянский",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 93,
+    "name": "Sour cream / არაჟანი / Сметана",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 94,
+    "name": "Soya / სიოის / Соевый соус",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 109,
+    "name": "spaghetti boloneza / სპაგეტი ბოლონიეზე / Спагетти болоньезе",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 110,
+    "name": "spaghetti karbonara / სპაგეტი კარბონარა / Спагетти карбонара",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 107,
+    "name": "Steak / სტეიკი ხბოს ხორცით / Стейк",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 9,
+    "name": "Steak Marseille / სტეიკი მარსელი / Стейк Марсель",
+    "group": "Firm dishes / საფირმო კერძები / Фирменные блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 432,
+    "name": "Stroh Fire Shot",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 19,
+    "name": "Sulguni cheese / ყველი სულგუნი / Сыр сулгуни",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 426,
+    "name": "Teliani Valley Manavi Green / 0.200 l",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 441,
+    "name": "Tequila Slammer",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 442,
+    "name": "Tequila Sunrise",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 45,
+    "name": "Thin pancakes / ბლინები თხელი / Блины тонкие",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 75,
+    "name": "Tolma / ტოლმა / Толма",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 57,
+    "name": "Ukrainian borscht / უკრაინული ბორში ხორცით / Борщ украинский",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 77,
+    "name": "Veal ojakhuri / ოჯახური ხბოს / Оджахури из телятины",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 16,
+    "name": "Vinegret salad / სალათი ვინეგრეტი / Винегрет",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 345,
+    "name": "Vino spumante Valdobbiadene prosecco DOGG BRUT-VEDOVA",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 443,
+    "name": "Vodka Energy Drink",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 122,
+    "name": "Water / წყალი / Вода",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 439,
+    "name": "Whiskey Cola",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 433,
+    "name": "Whiskey Sour",
+    "group": "Coctails",
+    "price": 0.0
+  },
+  {
+    "posterId": 359,
+    "name": "ახალი კარტოფილი / Молодой картофель.",
+    "group": "Side dishes / გარნირი / Гарниры",
+    "price": 0.0
+  },
+  {
+    "posterId": 383,
+    "name": "ბადრიჯნის რგოლები პიტნის სოუსში",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 373,
+    "name": "ბავარია 0.3",
+    "group": "Beer / ლუდი / Пиво",
+    "price": 0.0
+  },
+  {
+    "posterId": 303,
+    "name": "ბალანტეისი ვისკი",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 307,
+    "name": "ბეილისი",
+    "group": "Cognac / კონიაკი / Коньяк",
+    "price": 0.0
+  },
+  {
+    "posterId": 284,
+    "name": "ბეილისი 50გრ",
+    "group": "Cognac / კონიაკი / Коньяк",
+    "price": 0.0
+  },
+  {
+    "posterId": 354,
+    "name": "ბეჭი / лопатка",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 304,
+    "name": "ბურბონი ვისკი",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 133,
+    "name": "გარბული მოხარშული მწვანილებში 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 130,
+    "name": "გარბული შემწვარი 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 271,
+    "name": "გარბული შემწვარი 50გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 132,
+    "name": "გარბული შემწვარი ბაჟეში 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 131,
+    "name": "გარბული შემწვარი ღვინოში 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 164,
+    "name": "გაწეწილი ბადრიჯანი ნიგვზით",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 384,
+    "name": "გოგრის კრემ სუპი",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 336,
+    "name": "გორული მწვანე ბოთლი 0.75ლ (ვინივერია)",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 208,
+    "name": "გრეი გრუსი 1ლ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 400,
+    "name": "გრილზე დაბრაწული რვაფეხა",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 401,
+    "name": "გრილზე მომზადებული ღორის ნეკნები ბოსტნრულითა და ფრით",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 316,
+    "name": "გურული მწვანე ბითლით",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 159,
+    "name": "გურული მჭადი — Гурийская мчади.",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 385,
+    "name": "დაბეგვილი ქათმის ფილე ყველის სოუსით და ფრით",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 287,
+    "name": "დაკიშვილი ქისი თეთრი მშრალი ღვინო 0.75",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 286,
+    "name": "დანსკა 1ლ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 265,
+    "name": "დიდი ყუთი",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 146,
+    "name": "დორადო 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 429,
+    "name": "ელარჯი / эларджи",
+    "group": "Ajarian goods / აჭარული კერძები / Аджарские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 173,
+    "name": "ელარჯი эларджи",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 229,
+    "name": "ელარჯი დიდი",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 185,
+    "name": "ესპრესო / Эспрессо",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 344,
+    "name": "ვალდობიადენე პროსეკო - ვედოვა (შამპანიური)",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 153,
+    "name": "ვარენიკები ალუბლით 1ც - Вареники с вишней",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 151,
+    "name": "ვარენიკები კარტოფილით 1ც — Вареники с картофелем, 1 шт.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 152,
+    "name": "ვარენიკები ყველით — Вареники с сыром.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 333,
+    "name": "ვარშტაინერი უალკოჰოლო",
+    "group": "Beer / ლუდი / Пиво",
+    "price": 0.0
+  },
+  {
+    "posterId": 290,
+    "name": "ვაშტაინერი ლუდი",
+    "group": "Beer / ლუდი / Пиво",
+    "price": 0.0
+  },
+  {
+    "posterId": 370,
+    "name": "ვინივერია ტვიში ნახ.ტკბილი",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 175,
+    "name": "ზუთხი ნიგოზში შემწვარი — Жареная осетрина в орехах.",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 452,
+    "name": "ზუთხი ქინძმარის სოუსში 100g/ осетрина в киндзмари",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 135,
+    "name": "ზუთხი შემწვარი 100გრ / жаренный осетр",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 276,
+    "name": "ზუთხი შემწვარი 50გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 427,
+    "name": "ზღვის პროდუქტების ასორტი / ассорти морепродуктов",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 403,
+    "name": "ზღვის პროდუქტების პასტა",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 404,
+    "name": "ზღვის პროდუქტების სალათი",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 192,
+    "name": "თაფლის ჭაჭა 1ლ",
+    "group": "Pouring Chacha / ჩამოსასხმელი ჭაჭა / Разливная чача",
+    "price": 0.0
+  },
+  {
+    "posterId": 197,
+    "name": "თაფლის ჭაჭა 50გრ",
+    "group": "Pouring Chacha / ჩამოსასხმელი ჭაჭა / Разливная чача",
+    "price": 0.0
+  },
+  {
+    "posterId": 339,
+    "name": "თელიანი ველი გლეხური რქაწითელი ქვევრის 0.75ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 337,
+    "name": "თელიანი ველი საფერავი 0.75ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 319,
+    "name": "თელიანი ველი ტვიში ბოთლი",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 340,
+    "name": "თელიანი ველი ფიროსმანი წითელი 0.75ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 317,
+    "name": "თელიანი ველი წითელი ბოთლი",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 318,
+    "name": "თელიანი ველი წინანდალი ბოთლი",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 320,
+    "name": "თელიანი ველი ჭაჭა (მუხის კასრში დავარგებული) 0.5",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 338,
+    "name": "თელიანი ველი ჭაჭა თეთრი 0.5ლ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 262,
+    "name": "იალანჩი ტოლმა",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 386,
+    "name": "ინგლისური საუზმე",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 291,
+    "name": "იქსელი XL",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 387,
+    "name": "კალმარის რგოლები",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 134,
+    "name": "კამბალა შემწვარი 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 272,
+    "name": "კამბალა შემწვარი 50გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 365,
+    "name": "კანჭის ასორტი",
+    "group": "ლუდის მენიუ",
+    "price": 0.0
+  },
+  {
+    "posterId": 451,
+    "name": "კაპიტან მორგანი 50მლ",
+    "group": "Rum / რომი / Ром",
+    "price": 0.0
+  },
+  {
+    "posterId": 206,
+    "name": "კაპიტან მორგანი შავი 1ლ",
+    "group": "Rum / რომი / Ром",
+    "price": 0.0
+  },
+  {
+    "posterId": 455,
+    "name": "კარაქი / сливочное масло",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 182,
+    "name": "კაფუჩინო / Капучино",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 129,
+    "name": "კეფალი შემწვარი 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 260,
+    "name": "კეჩუპი",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 156,
+    "name": "კოკა-კოლა ზერო",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 266,
+    "name": "კომპოტი 1 ჭიქა",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 264,
+    "name": "კონტეინერი",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 288,
+    "name": "კორონა (ბოთლი)",
+    "group": "Beer / ლუდი / Пиво",
+    "price": 0.0
+  },
+  {
+    "posterId": 154,
+    "name": "კოტლეტი საქონლის ხორცით 1ც — Котлета из говядины, 1 шт.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 388,
+    "name": "კრევეტები ნაღების სოუსში",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 168,
+    "name": "კრევეტები შემწვარი 200გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 389,
+    "name": "კროკ მადამი",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 177,
+    "name": "ლავაში მთლიანი",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 178,
+    "name": "ლავაში ნახევარი",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 184,
+    "name": "ლატე / Латте",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 362,
+    "name": "ლიმონი",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 162,
+    "name": "ლობიო ქოთანში — Лобио в горшочке.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 357,
+    "name": "ლობიო შეკაზმული / Лобио",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 381,
+    "name": "ლუდის ჩიფსები",
+    "group": "ლუდის მენიუ",
+    "price": 0.0
+  },
+  {
+    "posterId": 261,
+    "name": "მაიონეზი",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 205,
+    "name": "მანკი შოულდერ 1ლ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 219,
+    "name": "მარსელის საფირმო ცეზარი",
+    "group": "Firm dishes / საფირმო კერძები / Фирменные блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 306,
+    "name": "მარტინი ბიანკო",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 305,
+    "name": "მარტინი როზე",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 150,
+    "name": "მაწონი ნივრით",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 374,
+    "name": "მდოგვი",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 454,
+    "name": "მდოგვი/ горчица",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 252,
+    "name": "მექსიკური კარტოფილი / Картофель по-мексикански",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 137,
+    "name": "მიდიები შემწვარი",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 138,
+    "name": "მიდიები შემწვარი ღვინოში",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 140,
+    "name": "მიდიების ბიფსტროგანოვი",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 218,
+    "name": "მიდიების ფლავი — Плов с мидиями.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 390,
+    "name": "მიდიების ფლოვი",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 139,
+    "name": "მიდიების ჩაშუშული",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 378,
+    "name": "მილქშეიქი ბანანი / Банановый милкшейк",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 375,
+    "name": "მილქშეიქი მარწყვის / Клубничный милкшейк",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 377,
+    "name": "მილქშეიქი შოკოლადის / Шоколадный милкшейк",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 376,
+    "name": "მილქშეიქი/Милкшейк",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 371,
+    "name": "მიწის თხილი 200გ",
+    "group": "ლუდის მენიუ",
+    "price": 0.0
+  },
+  {
+    "posterId": 283,
+    "name": "მონკი შოლდერ 50 გრ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 301,
+    "name": "მონქეი ვისტკი ორიგინალი",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 314,
+    "name": "მუკუზანი ღვინო ბოთლი 0.75 (ვინივერია)",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 158,
+    "name": "მწვადი ასეტრინის 100გრ",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 270,
+    "name": "მწვანე ლობიო ნიგვზით",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 413,
+    "name": "ნაყინი 200გრ",
+    "group": "Dessert/ დესერტი / Десерты",
+    "price": 0.0
+  },
+  {
+    "posterId": 447,
+    "name": "ნაყინი თხილით/Ice cream with nuts",
+    "group": "Dessert/ დესერტი / Десерты",
+    "price": 0.0
+  },
+  {
+    "posterId": 363,
+    "name": "ნორვეგიული ორაგულის მწვადი 100გრ",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 391,
+    "name": "ოთხი ყველის ბურთები",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 416,
+    "name": "ოკროშკა - окрошка",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 456,
+    "name": "ომლეტი, შემწვარი კვერცხი / омлет, глазунья",
+    "group": "საუზმე / завтрак",
+    "price": 0.0
+  },
+  {
+    "posterId": 457,
+    "name": "ორაგული ბაჟეში",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 136,
+    "name": "ორაგული ნორვეგიული 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 277,
+    "name": "ორაგული ნორვეგიული 50გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 72,
+    "name": "ოსტრი остри",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 285,
+    "name": "ოჯახური ქათმის ხორცით / Оджахури с курицей",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 289,
+    "name": "პაულანერი გაუფილტრავი ლუდი",
+    "group": "Beer / ლუდი / Пиво",
+    "price": 0.0
+  },
+  {
+    "posterId": 259,
+    "name": "პელმენი ქოთანში / Пельмени в горшочке",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 213,
+    "name": "პილმენი 1ც — Пельмень, 1 шт.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 147,
+    "name": "პიურე - картофельное пюре",
+    "group": "Side dishes / გარნირი / Гарниры",
+    "price": 0.0
+  },
+  {
+    "posterId": 268,
+    "name": "პიცა პეპერონი",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 179,
+    "name": "პურის ასორტი - лаваш",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 392,
+    "name": "ჟულიენი ქათმით და სოკოთი",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 143,
+    "name": "ჟულიენი — Жюльен",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 249,
+    "name": "რქაწითელი 200მლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 243,
+    "name": "რქაწითელი ჩამოსასხმელი 0.5ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 244,
+    "name": "რქაწითელი ჩამოსასხმელი 1ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 411,
+    "name": "საზამთრო და ნესვი დიდი",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 412,
+    "name": "საზამთრო და ნესვი პატარა",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 198,
+    "name": "სარაჯიშვილი 0.5ლ",
+    "group": "Cognac / კონიაკი / Коньяк",
+    "price": 0.0
+  },
+  {
+    "posterId": 279,
+    "name": "სარაჯიშვილი 50გრ",
+    "group": "Cognac / კონიაკი / Коньяк",
+    "price": 0.0
+  },
+  {
+    "posterId": 128,
+    "name": "სარღანა შემწვარი 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 275,
+    "name": "სარღანა შემწვარი 50გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 245,
+    "name": "საფერავი 0.5ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 246,
+    "name": "საფერავი 1ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 250,
+    "name": "საფერავი 200მლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 343,
+    "name": "საფერავი 2023 (ორგო)",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 311,
+    "name": "საფერავი ბოთლი",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 341,
+    "name": "საფერავი გოლეთიანი 0.75ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 334,
+    "name": "საფერავი ვარდისფერი 0.75 (ჩელთი)",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 458,
+    "name": "საცივი (1 პორცია) / Сациви (1 порция)",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 459,
+    "name": "საცივი (6 ადამიანზე) / Сациви (порция на 6 человек)",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 321,
+    "name": "სახლის ლიმონათი",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 428,
+    "name": "სახლის ლიმონათი / домашний лимонад",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 405,
+    "name": "სიბასი ბოსტნეულით",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 258,
+    "name": "სოკო კეცზე სულგუნის ყველით / грибы кеце с сулугуни",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 142,
+    "name": "სოკო მშრალად/Жареные грибы",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 393,
+    "name": "სოკოს კრემ-სუპი",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 224,
+    "name": "სოკოს კრემსუპი — Грибной крем-суп.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 356,
+    "name": "სოკოს ოჯახური / оджахури с грибами",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 355,
+    "name": "სოკოს ჩაშუშული / грибной чашушули",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 368,
+    "name": "სოსისის დაფა",
+    "group": "ლუდის მენიუ",
+    "price": 0.0
+  },
+  {
+    "posterId": 161,
+    "name": "სოუსი მარსელი",
+    "group": "Souse's / სოუსი / Соусы",
+    "price": 0.0
+  },
+  {
+    "posterId": 406,
+    "name": "სოფლის წიწილა გურულ სოუსში",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 157,
+    "name": "სპრაიტი",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 127,
+    "name": "სტავრიდა შემწვარი 100გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 274,
+    "name": "სტავრიდა შემწვარი 50გრ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 324,
+    "name": "სტოლიჩნაია 0.5ლ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 323,
+    "name": "სტოლიჩნაია 0.7ლ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 212,
+    "name": "სტოლიჩნაია 1ლ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 325,
+    "name": "სტოლიჩნაია 50 გრ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 257,
+    "name": "სუპ ხარჩო / харчо",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 353,
+    "name": "ტეკილა ბიანკო 50მლ / tequila 50ml",
+    "group": "Tequila / ტეკილა / Текила",
+    "price": 0.0
+  },
+  {
+    "posterId": 167,
+    "name": "ტკბილი ფლავი ქიშმიშითა და ცუკატებით — Сладкий плов с изюмом и цукатами.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 226,
+    "name": "ტოლმა ასორტი",
+    "group": "Cold dishes / ცივი კერძები / Холодные закуски",
+    "price": 0.0
+  },
+  {
+    "posterId": 364,
+    "name": "ტოლმის ასორტი",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 394,
+    "name": "ტომ იამი",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 225,
+    "name": "უკრაინული ბორში სამარხო — Постный украинский борщ.",
+    "group": "Soup dishes / წვნიანი / Супы",
+    "price": 0.0
+  },
+  {
+    "posterId": 310,
+    "name": "უსახელაური ბოთლი არასასაჩუქრე (როიალ ხვანჭკარა) 0.75ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 367,
+    "name": "ფანირებული ყველის ჩხირები",
+    "group": "ლუდის მენიუ",
+    "price": 0.0
+  },
+  {
+    "posterId": 155,
+    "name": "ფანტა",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 255,
+    "name": "ფინლანდია 0.5ლ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 210,
+    "name": "ფინლანდია 1ლ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 256,
+    "name": "ფინლანდია 50მლ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 163,
+    "name": "ფლოვანი ხაჭაპური — Хачапури из слоёного теста.",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 227,
+    "name": "ქათმის ბიფსტროგანოვი — Бефстроганов из курицы.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 348,
+    "name": "ქათმის კუჭმაჭი / Кучмачи",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 228,
+    "name": "ქათმის სტეიკი ყველით — Куриный стейк с сыром.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 369,
+    "name": "ქათმის ფრთები",
+    "group": "ლუდის მენიუ",
+    "price": 0.0
+  },
+  {
+    "posterId": 395,
+    "name": "ქათმის ფრთები ბარბექიუს სოუსში",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 396,
+    "name": "ქათმის ფრთები ტკბილ-ცხარე სოუსში",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 407,
+    "name": "ქათმის ღვიძლის სალათი",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 408,
+    "name": "ქათმის ხვეულა ნაღების და პარმეზნის სოუსში",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 326,
+    "name": "ქინძმარაული კახური 0.75ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 308,
+    "name": "ქინძმარაული მარანი ბოთლი",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 342,
+    "name": "ქისი თეთრი მშრალი დაკიშვილი (ევრო) 0.75",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 315,
+    "name": "ქისი ღვინო თეთრი ბოთლი (ვინივერია)",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 397,
+    "name": "ქლაბ სენდვიჩი",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 361,
+    "name": "ქობულეთური ბორანო / кобулетский борана",
+    "group": "Ajarian goods / აჭარული კერძები / Аджарские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 347,
+    "name": "ღვინო მწვანე კახური ჩამოსასხმელი 1ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 346,
+    "name": "ღვინო ქინძმარაული კახური ჩამოსახმელი 1ლ",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 335,
+    "name": "ღვინო ხიხვი 0.75 (ჩელთი)",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 172,
+    "name": "ღომი гоми",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 269,
+    "name": "ღორის ნეკნები აზიურად / Свиные рёбрышки по-азиатски",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 366,
+    "name": "ღორის ნეკნები ბარბექიუს სოუსთან",
+    "group": "ლუდის მენიუ",
+    "price": 0.0
+  },
+  {
+    "posterId": 181,
+    "name": "ყავა ბათუმურად / Кофе по-батумски",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 190,
+    "name": "ყაზბეგი (ჩამოსასხმელი)",
+    "group": "Beer / ლუდი / Пиво",
+    "price": 0.0
+  },
+  {
+    "posterId": 194,
+    "name": "ყურძნის ჭაჭა 1ლ",
+    "group": "Pouring Chacha / ჩამოსასხმელი ჭაჭა / Разливная чача",
+    "price": 0.0
+  },
+  {
+    "posterId": 195,
+    "name": "ყურძნის ჭაჭა 50გრ",
+    "group": "Pouring Chacha / ჩამოსასხმელი ჭაჭა / Разливная чача",
+    "price": 0.0
+  },
+  {
+    "posterId": 189,
+    "name": "შავი ლომი (ჩამოსასხმელი)",
+    "group": "Beer / ლუდი / Пиво",
+    "price": 0.0
+  },
+  {
+    "posterId": 372,
+    "name": "შავი ლომი 0.3",
+    "group": "Beer / ლუდი / Пиво",
+    "price": 0.0
+  },
+  {
+    "posterId": 398,
+    "name": "შებოლილი სულგუნის ჩიფსები",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 399,
+    "name": "შებოლილი ყველის ჩხირები",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 176,
+    "name": "შეკაზმული ორაგული",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 448,
+    "name": "შემწვარი მწყერი / Жареная перепелка",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 171,
+    "name": "შემწვარი შეკაზმული გოჭი поросенок",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 292,
+    "name": "შვეპსი",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 166,
+    "name": "შილა ფლავი სოკოთი — Шила-плов с грибами.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 165,
+    "name": "შილა ფლავი ხორცით — Шила-плов с мясом.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 207,
+    "name": "შპროხ რომ 1ლ",
+    "group": "Rum / რომი / Ром",
+    "price": 0.0
+  },
+  {
+    "posterId": 187,
+    "name": "ჩაი / чай",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 188,
+    "name": "ჩაი ჩაიდანით / чайник чая",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 145,
+    "name": "ჩახოხბილი — Чахохбили.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 382,
+    "name": "ჩეფსი",
+    "group": "Главный экран",
+    "price": 0.0
+  },
+  {
+    "posterId": 203,
+    "name": "ჩივას რეგალი 1ლ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 280,
+    "name": "ჩივას რეგალი 50გრ",
+    "group": "Cognac / კონიაკი / Коньяк",
+    "price": 0.0
+  },
+  {
+    "posterId": 332,
+    "name": "ჩისტიე როსი 100გრ",
+    "group": "Главный экран",
+    "price": 0.0
+  },
+  {
+    "posterId": 450,
+    "name": "ჩისტიე როსი 50გრ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 300,
+    "name": "ჩისტიე როსი არაყი 0.5",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 299,
+    "name": "ჩისტიე როსი არაყი 1ლ",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 169,
+    "name": "ცეზარი კრევეტებით",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 170,
+    "name": "ცეზარი ნორვეგიული ორაგულით (400გრ ორაგული)",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 186,
+    "name": "ცივი ყავა ნაყინით / холодный кофе",
+    "group": "Coffee / ყავა / Кофе",
+    "price": 0.0
+  },
+  {
+    "posterId": 313,
+    "name": "ციცქა კრახუნა ნახევრად მშრალი (ჩელთი)",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 221,
+    "name": "ცხელი სალათი მაკა (ქათმითა და ბოსტნეულით)",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 216,
+    "name": "ცხელი სალათი მაკა (ხორცითა და ბოსტნეულით)",
+    "group": "Salad / სალათები / Салаты",
+    "price": 0.0
+  },
+  {
+    "posterId": 293,
+    "name": "წვენი",
+    "group": "Soft drinks / სასმელები / Напитки",
+    "price": 0.0
+  },
+  {
+    "posterId": 296,
+    "name": "ჭაჭა თელიანი გოლდი / Чача Teliani Valley Gold",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 295,
+    "name": "ჭაჭა თელიანი ველი silver  / Чача Teliani Valley silver",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 330,
+    "name": "ჭაჭა პორტო ფრანკო თეთრი 100გრ",
+    "group": "Tequila / ტეკილა / Текила",
+    "price": 0.0
+  },
+  {
+    "posterId": 329,
+    "name": "ჭაჭა პორტო ფრანკო თეთრი 1ლ / Чача Porto Franco Белая, 1 л.",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 328,
+    "name": "ჭაჭა პორტო ფრანკო როზე 100გრ / Чача Porto Franco Rosé, 100 г",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 327,
+    "name": "ჭაჭა პორტო ფრანკო როზე 1ლ / Чача Porto Franco Rosé, 1 л",
+    "group": "Vodka / არაყი / Водка",
+    "price": 0.0
+  },
+  {
+    "posterId": 409,
+    "name": "ჭვავის გრენკები",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 350,
+    "name": "ხამსა 0.500კგ",
+    "group": "Fish / თევზი / Рыба",
+    "price": 0.0
+  },
+  {
+    "posterId": 415,
+    "name": "ხაჭაპური შამფურზე - хачапури на шампуре",
+    "group": "Baked goods / ცომეული / Изделья из теста",
+    "price": 0.0
+  },
+  {
+    "posterId": 380,
+    "name": "ხაჭაპური შამფურზე / Хачапури на шампуре",
+    "group": "Grilled dishes / კერძები მაყალზე / Блюда на мангале",
+    "price": 0.0
+  },
+  {
+    "posterId": 174,
+    "name": "ხბო შემწვარი შილა ფლავში ხბო შემწვარი შილა ფლავში — Жареная телятина с шила-пловом.",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 349,
+    "name": "ხბოს გულ-ღვიძლი / Телячье сердце и печень",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 410,
+    "name": "ხბოს ნეკნები გაწურული მაწვნის სოუსით",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 230,
+    "name": "ხბოს ნეკნი აჯიკით გლეხურად / ребра в аджике",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 417,
+    "name": "ხბოს ჩაშუშული",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 144,
+    "name": "ხბოს ჩაშუშული — Тушёная телятина",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 379,
+    "name": "ხბოს ხორცი საფერავში",
+    "group": "European dishes / ევროპული კერძები /  Европейские блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 263,
+    "name": "ხეკი ქინძმარში",
+    "group": "წინასწარი შეკვეთით",
+    "price": 0.0
+  },
+  {
+    "posterId": 309,
+    "name": "ხვაანჭკარა ბოთლი",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 331,
+    "name": "ხვანჭკარა არასასაჩუქრე წითელი ნახევრად ტკბილი 0.75 2018წ (როიალ ხვანჭკარა)",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 231,
+    "name": "ხინკალი საქონლის ხორცით — Хинкали с говядиной.",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 267,
+    "name": "ხინკალი შერეული ხორცით / Хинкали со смешанным мясом",
+    "group": "Hot dishes / ცხელი კერძები / Горячие блюда",
+    "price": 0.0
+  },
+  {
+    "posterId": 312,
+    "name": "ხიხვი ღვინო თეთრი ბოთლით",
+    "group": "Wine",
+    "price": 0.0
+  },
+  {
+    "posterId": 201,
+    "name": "ჯეიმსონი 1ლ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 282,
+    "name": "ჯეიმსონი 50 გრ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 200,
+    "name": "ჯეკ დენიელსი 1ლ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 281,
+    "name": "ჯეკ დენიელსი 50 გრ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 202,
+    "name": "ჯიმ ბიმი 1ლ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 204,
+    "name": "ჰაილენდ ბარონ ბლენდედ 0.7ლ",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 302,
+    "name": "ჰანკეი ბაბისტერ ვისკი",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  },
+  {
+    "posterId": 322,
+    "name": "ჰინგლანდ ბატონ ვისკი",
+    "group": "Whisky / ვისკი / Виски",
+    "price": 0.0
+  }
+]

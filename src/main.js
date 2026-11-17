@@ -1,5 +1,6 @@
 import "./styles.css";
 import { createClient } from "@supabase/supabase-js";
+import posterCatalog from "./posterCatalog.json";
 
 const STORAGE_KEY = "restaurant-inventory-v1";
 const LANGUAGE_STORAGE_KEY = "marseille-restaurant-language";
@@ -1849,6 +1850,7 @@ function renderMenu() {
   const pendingImport = latestPendingSalesImport();
   const existingPosterNames = new Set(state.menuItems.map((item) => productNameKey(item.posterName)));
   const menuLinesToImport = (pendingImport?.lines || []).filter((line) => !existingPosterNames.has(productNameKey(line.name)));
+  const catalogItemsToImport = posterCatalog.filter((item) => !existingPosterNames.has(productNameKey(item.name)));
   const groups = [...new Set(state.menuItems.map((item) => item.group).filter(Boolean))].sort((first, second) => first.localeCompare(second));
 
   return `
@@ -1860,7 +1862,10 @@ function renderMenu() {
             <h3>Menu items</h3>
             <p class="section-description">These are the sellable positions from Poster. A recipe card connects each menu item to the stock it consumes.</p>
           </div>
-          ${menuLinesToImport.length ? `<button class="small-button" id="import-poster-menu-lines" type="button">${icon("plus")}Add ${menuLinesToImport.length} from Poster</button>` : ""}
+          <div class="inline-actions">
+            ${catalogItemsToImport.length ? `<button class="small-button" id="import-poster-catalog" type="button">${icon("plus")}Import Poster catalog (${catalogItemsToImport.length})</button>` : ""}
+            ${menuLinesToImport.length ? `<button class="small-button" id="import-poster-menu-lines" type="button">${icon("plus")}Add ${menuLinesToImport.length} from sales</button>` : ""}
+          </div>
         </div>
         ${state.menuItems.length ? `
           <div class="table-scroll">
@@ -1966,6 +1971,27 @@ function bindMenu() {
       nextMenuItemId += 1;
     });
     saveState(`${lines.length} menu items added from the Poster draft.`);
+  });
+
+  document.querySelector("#import-poster-catalog")?.addEventListener("click", () => {
+    const existingPosterNames = new Set(state.menuItems.map((item) => productNameKey(item.posterName)));
+    const items = posterCatalog.filter((item) => !existingPosterNames.has(productNameKey(item.name)));
+    let nextMenuItemId = nextId(state.menuItems);
+
+    items.forEach((item) => {
+      state.menuItems.push({
+        id: nextMenuItemId,
+        posterId: item.posterId,
+        name: item.name,
+        group: item.group,
+        posterName: item.name,
+        sourcePrice: item.price,
+        active: true,
+      });
+      nextMenuItemId += 1;
+    });
+
+    saveState(`${items.length} menu items imported from the live Poster catalog.`);
   });
 }
 
