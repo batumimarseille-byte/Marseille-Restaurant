@@ -156,7 +156,7 @@ const sections = [
   { id: "products", label: "Products" },
   { id: "menu", label: "Menu" },
   { id: "incoming", label: "Incoming" },
-  { id: "outgoing", label: "Outgoing" },
+  { id: "outgoing", label: "Manual usage" },
   { id: "inventory", label: "Inventory" },
   { id: "reconcile", label: "Monthly check" },
   { id: "suppliers", label: "Suppliers" },
@@ -169,6 +169,7 @@ const georgianTranslations = {
   "Menu": "მენიუ",
   "Incoming": "მიღება",
   "Outgoing": "ხარჯვა",
+  "Manual usage": "ხელით ჩამოწერა",
   "Inventory": "ინვენტარიზაცია",
   "Monthly check": "თვიური შემოწმება",
   "Suppliers": "მომწოდებლები",
@@ -948,7 +949,7 @@ function movementsSince(days, type = null) {
 function movementLabel(type) {
   return {
     incoming: "Incoming",
-    outgoing: "Outgoing",
+    outgoing: "Manual usage",
     adjustment: "Inventory adjustment",
   }[type];
 }
@@ -1497,9 +1498,9 @@ function movementTone(type) {
 }
 
 function reasonTone(reason = "") {
-  if (["Write-off", "Spoilage"].includes(reason)) return "danger";
-  if (["Staff", "Inventory"].includes(reason)) return "warning";
-  if (["Kitchen", "Bar"].includes(reason)) return "info";
+  if (reason === "Spoilage") return "danger";
+  if (["Staff meal", "Complimentary"].includes(reason)) return "warning";
+  if (["Tasting", "Internal use"].includes(reason)) return "info";
   return "neutral";
 }
 
@@ -1810,8 +1811,8 @@ function renderOutgoing() {
       <article class="panel">
         <div class="panel-header">
           <div>
-            <p class="eyebrow">Usage</p>
-            <h3>Add outgoing goods</h3>
+            <p class="eyebrow">Manual usage</p>
+            <h3>Add a write-off</h3>
           </div>
         </div>
         <form class="work-form" id="outgoing-form">
@@ -1828,11 +1829,11 @@ function renderOutgoing() {
           <label>
             Reason
             <select name="reason">
-              <option>Kitchen</option>
-              <option>Bar</option>
-              <option>Write-off</option>
               <option>Spoilage</option>
-              <option>Staff</option>
+              <option>Staff meal</option>
+              <option>Tasting</option>
+              <option>Complimentary</option>
+              <option>Internal use</option>
               <option>Other</option>
             </select>
           </label>
@@ -1840,12 +1841,12 @@ function renderOutgoing() {
             Comment
             <textarea name="comment" placeholder="Optional details"></textarea>
           </label>
-          <button class="primary-button wide" type="submit">${icon("plus")}Save outgoing</button>
+          <button class="primary-button wide" type="submit">${icon("plus")}Save usage</button>
         </form>
       </article>
       <article class="info-panel support-panel">
-        <p class="eyebrow">Usage status</p>
-        <h3>Stock decreases</h3>
+        <p class="eyebrow">Write-offs</p>
+        <h3>Manual stock usage</h3>
         <div class="support-stat-grid">
           <div>
             <span>7 day usage</span>
@@ -2903,10 +2904,10 @@ function reportDefinitions() {
     },
     {
       id: "outgoing",
-      title: "Outgoing and write-offs",
-      kicker: "Usage",
+      title: "Manual usage and write-offs",
+      kicker: "Manual usage",
       icon: "upload",
-      description: "Kitchen, bar, spoilage, staff, and other usage.",
+      description: "Spoilage, staff meals, tastings, complimentary items, and other non-sale stock usage.",
     },
     {
       id: "inventory",
@@ -3226,12 +3227,12 @@ function bindOutgoing() {
     const currentStock = stockFor(productId);
 
     if (!product) {
-      showNotice("Choose a product before saving outgoing goods.");
+      showNotice("Choose a product before saving manual usage.");
       return;
     }
 
     if (!positiveNumber(quantity)) {
-      showNotice("Outgoing quantity must be greater than zero.");
+      showNotice("Usage quantity must be greater than zero.");
       return;
     }
 
@@ -3249,7 +3250,7 @@ function bindOutgoing() {
       reason: data.get("reason"),
       comment: data.get("comment").trim(),
     });
-    saveState("Outgoing movement saved. Stock decreased.");
+    saveState("Manual usage saved. Stock decreased.");
   });
 }
 
