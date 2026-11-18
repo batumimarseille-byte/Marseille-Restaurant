@@ -578,7 +578,7 @@ function cloudRowsToState(products, suppliers, movements, appStates) {
       name: product.name,
       category: product.category,
       unit: product.unit,
-      minStock: Number(product.minimum_stock),
+      minStock: 0,
       price: Number(product.purchase_price),
       openingStock: Number(product.opening_stock),
       active: product.is_active,
@@ -652,7 +652,8 @@ async function writeCloudState() {
     name: product.name,
     category: product.category,
     unit: product.unit,
-    minimum_stock: product.minStock,
+    // The legacy database column is kept for compatibility, but no longer drives the app.
+    minimum_stock: 0,
     purchase_price: product.price,
     opening_stock: product.openingStock,
     is_active: product.active,
@@ -949,10 +950,6 @@ function topStockProducts(limit = 5) {
 
 function totalStockValue() {
   return state.products.reduce((sum, product) => sum + productValue(product), 0);
-}
-
-function lowStockProducts() {
-  return state.products.filter((product) => product.active && stockFor(product.id) <= Number(product.minStock || 0));
 }
 
 function roundStock(value) {
@@ -1544,9 +1541,9 @@ function reasonTone(reason = "") {
 }
 
 function renderOverview() {
-  const lowStock = lowStockProducts();
   const incoming7 = movementsSince(7, "incoming");
   const outgoing7 = movementsSince(7, "outgoing");
+  const movements7 = incoming7.length + outgoing7.length;
   const latestMovements = state.movements.slice(-5).reverse();
   const valueLeaders = topStockProducts(5);
   return `
@@ -1561,11 +1558,11 @@ function renderOverview() {
       </article>
       <article class="metric-card">
         <div class="metric-card-header">
-          <span class="metric-icon amber">${icon("search")}</span>
-          <span>Low stock</span>
+          <span class="metric-icon amber">${icon("file")}</span>
+          <span>7 day movements</span>
         </div>
-        <strong>${lowStock.length}</strong>
-        <small>${lowStock.length ? "Needs attention today" : "All products are above minimum"}</small>
+        <strong>${movements7}</strong>
+        <small>${incoming7.length} incoming · ${outgoing7.length} outgoing</small>
       </article>
       <article class="metric-card">
         <div class="metric-card-header">
@@ -1598,36 +1595,6 @@ function renderOverview() {
       </article>
 
       <div class="dashboard-side">
-        <article class="panel">
-          <div class="panel-header">
-            <div>
-              <p class="eyebrow">Attention</p>
-              <h3>Low stock queue</h3>
-            </div>
-            <button class="panel-link" type="button" id="overview-low-stock" aria-label="Open low stock report" title="Open low stock report">${icon("arrowUpRight")}</button>
-          </div>
-          ${lowStock.length ? `
-            <div class="priority-list">
-              ${lowStock.slice(0, 3).map((product) => {
-                const stock = stockFor(product.id);
-                const shortage = roundStock(Math.max(0, Number(product.minStock || 0) - stock));
-                return `
-                  <div class="priority-row">
-                    <div>
-                      <strong>${product.name}</strong>
-                      <span>${product.category} · minimum ${product.minStock} ${product.unit}</span>
-                    </div>
-                    <div class="priority-value">
-                      ${badge(`${stock} ${product.unit}`, "warning")}
-                      <small>short ${shortage}</small>
-                    </div>
-                  </div>
-                `;
-              }).join("")}
-            </div>
-          ` : `<p class="empty-state">No products need attention right now.</p>`}
-        </article>
-
         <article class="panel">
           <div class="panel-header">
             <div>
@@ -1707,7 +1674,6 @@ function renderProducts() {
                 <th>Name</th>
                 <th>Category</th>
                 <th>Unit</th>
-                <th class="numeric">Min stock</th>
                 <th class="numeric">Price</th>
                 <th class="numeric">Current stock</th>
                 <th>Status</th>
@@ -1722,9 +1688,8 @@ function renderProducts() {
                     <td><strong>${product.name}</strong></td>
                     <td>${product.category}</td>
                     <td>${product.unit}</td>
-                    <td class="numeric">${product.minStock}</td>
                     <td class="numeric">${money(product.price)}</td>
-                    <td class="numeric ${stock <= product.minStock ? "danger-text" : ""}">${stock}</td>
+                    <td class="numeric">${stock}</td>
                     <td>${badge(product.active ? "Active" : "Inactive", product.active ? "success" : "neutral")}</td>
                     <td>
                       <div class="row-actions table-row-actions">
@@ -1734,7 +1699,7 @@ function renderProducts() {
                   </tr>
                   ${editingProduct?.id === product.id ? `
                     <tr class="inline-editor-row">
-                      <td colspan="8">
+                      <td colspan="7">
                         ${renderProductEditor(editingProduct, categories, units, "inline")}
                       </td>
                     </tr>
@@ -1795,7 +1760,6 @@ function renderProductEditor(editingProduct, categories, units, placement = "sid
           <input name="unit" id="new-unit" type="text" value="${isNewUnit ? productUnit : ""}" placeholder="New unit name" ${isNewUnit ? "required" : "hidden disabled"} />
         </div>
         ${numberInput("Opening stock", "openingStock", String(editingProduct?.openingStock ?? 0), true)}
-        ${numberInput("Minimum stock", "minStock", String(editingProduct?.minStock ?? 2), true)}
         ${numberInput("Purchase price", "price", formatEditablePrice(editingProduct?.price ?? 6), true)}
         ${editingProduct ? `
           <div class="product-status-row">
@@ -1884,7 +1848,6 @@ function renderIncoming() {
 function renderOutgoing() {
   const defaultProduct = firstActiveProduct();
   const recentOutgoing = movementsSince(7, "outgoing");
-  const lowStockCount = lowStockProducts().length;
   return `
     <div class="form-layout">
       <article class="panel">
@@ -1937,7 +1900,7 @@ function renderOutgoing() {
           </div>
         </div>
         <ul class="support-list">
-          <li>${badge(String(lowStockCount), lowStockCount ? "warning" : "success")} low stock products</li>
+          <li>${badge(String(state.products.filter((product) => product.active).length), "info")} active products</li>
           <li>${badge("Guarded", "info")} warns before negative stock</li>
           <li>${badge("Traceable", "neutral")} reason and comment stay in history</li>
         </ul>
@@ -3016,13 +2979,6 @@ function reportDefinitions() {
       description: "Kitchen, bar, spoilage, staff, and other usage.",
     },
     {
-      id: "lowStock",
-      title: "Low stock products",
-      kicker: "Action needed",
-      icon: "search",
-      description: "Products that are at or below minimum stock.",
-    },
-    {
       id: "inventory",
       title: "Inventory differences",
       kicker: "Corrections",
@@ -3048,16 +3004,6 @@ function movementsForActiveReport(baseMovements) {
 }
 
 function reportSummary(movements) {
-  if (activeReport === "lowStock") {
-    const items = lowStockProducts();
-    const gap = items.reduce((sum, product) => sum + Math.max(0, product.minStock - stockFor(product.id)), 0);
-    return [
-      { label: "Low stock items", value: String(items.length) },
-      { label: "Current value", value: money(items.reduce((sum, product) => sum + productValue(product), 0)) },
-      { label: "Total shortage", value: roundStock(gap) },
-    ];
-  }
-
   return [
     { label: "Records", value: String(movements.length) },
     { label: "Total value", value: money(movements.reduce((sum, movement) => sum + movementAmount(movement), 0)) },
@@ -3066,43 +3012,7 @@ function reportSummary(movements) {
 }
 
 function renderReportContent(movements) {
-  if (activeReport === "lowStock") {
-    return renderLowStockReport();
-  }
-
   return renderMovementTable(movements.slice().reverse());
-}
-
-function renderLowStockReport() {
-  const items = lowStockProducts();
-  if (!items.length) return `<p class="empty-state">No low stock products.</p>`;
-
-  return `
-    <div class="table-scroll inline-report-table">
-      <table>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Category</th>
-            <th class="numeric">Current stock</th>
-            <th class="numeric">Minimum stock</th>
-            <th class="numeric">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map((product) => `
-            <tr>
-              <td><strong>${product.name}</strong></td>
-              <td>${product.category}</td>
-              <td class="numeric danger-text">${stockFor(product.id)} ${product.unit}</td>
-              <td class="numeric">${product.minStock} ${product.unit}</td>
-              <td class="numeric">${money(productValue(product))}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
 }
 
 function renderMovementTable(items) {
@@ -3247,7 +3157,7 @@ function bindProducts() {
       category: form.get("category").trim(),
       unit: form.get("unit").trim(),
       openingStock: Number(form.get("openingStock")),
-      minStock: Number(form.get("minStock")),
+      minStock: 0,
       price: Number(form.get("price")),
       active: form.get("active") === "on",
     };
@@ -3259,10 +3169,9 @@ function bindProducts() {
 
     if (
       !nonNegativeNumber(productPayload.openingStock) ||
-      !nonNegativeNumber(productPayload.minStock) ||
       !nonNegativeNumber(productPayload.price)
     ) {
-      showNotice("Opening stock, minimum stock, and purchase price must be zero or higher.");
+      showNotice("Opening stock and purchase price must be zero or higher.");
       return;
     }
 
@@ -3336,17 +3245,7 @@ function bindChoiceMode(button, savedField, newField, newLabel, savedLabel) {
   });
 }
 
-function bindOverviewLocalActions() {
-  document.querySelector("#overview-low-stock")?.addEventListener("click", () => {
-    resetViewState();
-    activeReport = "lowStock";
-    reportFilters = {
-      ...reportFilters,
-      type: "all",
-    };
-    navigateToSection("reports", { reset: false });
-  });
-}
+function bindOverviewLocalActions() {}
 
 function bindIncoming() {
   const form = document.querySelector("#incoming-form");
@@ -3594,7 +3493,6 @@ function bindReports() {
         incoming: "incoming",
         outgoing: "outgoing",
         inventory: "adjustment",
-        lowStock: "all",
       };
       reportFilters = {
         ...reportFilters,
@@ -3614,17 +3512,6 @@ function bindReports() {
 }
 
 function exportRowsForActiveReport() {
-  if (activeReport === "lowStock") {
-    return lowStockProducts().map((product) => ({
-      product: product.name,
-      category: product.category,
-      currentStock: stockFor(product.id),
-      minimumStock: product.minStock,
-      unit: product.unit,
-      value: productValue(product),
-    }));
-  }
-
   return movementsForActiveReport(filteredMovements()).map((movement) => {
     const product = productById(movement.productId);
     const supplier = supplierById(movement.supplierId);

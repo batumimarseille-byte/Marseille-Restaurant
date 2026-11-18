@@ -1444,7 +1444,11 @@ tbody tr:last-child td {
 }
 
 .product-submit-button {
-  width: 100%;
+  width: auto;
+}
+
+.product-editor .form-actions {
+  justify-content: flex-end;
 }
 
 .product-status-row {
