@@ -433,6 +433,8 @@ let menuFilters = {
   group: "all",
   status: "all",
 };
+let openSelectControl = null;
+let selectDismissalEventsBound = false;
 
 function defaultReportFilters() {
   return {
@@ -1025,6 +1027,7 @@ function filteredMovements() {
 }
 
 function renderShell() {
+  closeOpenSelectControl();
   let shell = app.querySelector(".app-shell");
 
   if (!shell) {
@@ -1051,6 +1054,7 @@ function renderShell() {
   bindGlobalActions();
   bindCurrentView();
   bindSelectBlur();
+  enhanceSelects();
 }
 
 function renderSidebar() {
@@ -1145,6 +1149,7 @@ function renderAccountModalLayer() {
   document.querySelector("#account-language")?.addEventListener("change", (event) => {
     setLanguage(event.currentTarget.value);
   });
+  enhanceSelects(modalRoot);
 }
 
 function renderMain() {
@@ -1261,6 +1266,128 @@ function bindSelectBlur() {
   document.querySelectorAll("select").forEach((select) => {
     select.addEventListener("change", () => select.blur());
   });
+}
+
+function closeOpenSelectControl() {
+  if (!openSelectControl) return;
+  openSelectControl.control.classList.remove("is-open");
+  openSelectControl.menu.remove();
+  openSelectControl = null;
+}
+
+function selectLabel(select) {
+  const explicitLabel = select.getAttribute("aria-label");
+  if (explicitLabel) return explicitLabel;
+  const label = select.closest("label");
+  const text = [...(label?.childNodes || [])]
+    .filter((node) => node.nodeType === Node.TEXT_NODE)
+    .map((node) => node.textContent.trim())
+    .filter(Boolean)
+    .join(" ");
+  return text || select.name || "Select option";
+}
+
+function enhanceSelects(root = document) {
+  root.querySelectorAll("select:not([data-select-enhanced])").forEach((select) => {
+    select.dataset.selectEnhanced = "true";
+    const parent = select.parentElement;
+    if (!parent) return;
+
+    const control = document.createElement("div");
+    control.className = "select-control";
+    parent.insertBefore(control, select);
+    control.append(select);
+    select.classList.add("native-select");
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden", "true");
+
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.className = "select-trigger";
+    trigger.setAttribute("aria-haspopup", "listbox");
+    trigger.setAttribute("aria-label", selectLabel(select));
+    trigger.innerHTML = `<span class="select-trigger-value"></span><span class="select-trigger-chevron" aria-hidden="true"></span>`;
+    control.append(trigger);
+
+    const syncTrigger = () => {
+      const selectedOption = select.options[select.selectedIndex];
+      const isPlaceholder = !select.value;
+      trigger.querySelector(".select-trigger-value").textContent = selectedOption?.textContent || "Choose option";
+      trigger.classList.toggle("is-placeholder", isPlaceholder);
+      trigger.disabled = select.disabled;
+      trigger.setAttribute("aria-expanded", "false");
+    };
+
+    const openMenu = () => {
+      if (select.disabled) return;
+      if (openSelectControl?.control === control) {
+        closeOpenSelectControl();
+        return;
+      }
+      closeOpenSelectControl();
+
+      const menu = document.createElement("div");
+      menu.className = "select-dropdown";
+      menu.setAttribute("role", "listbox");
+      menu.setAttribute("aria-label", selectLabel(select));
+      [...select.options].forEach((option) => {
+        const optionButton = document.createElement("button");
+        optionButton.type = "button";
+        optionButton.className = "select-dropdown-option";
+        optionButton.textContent = option.textContent;
+        optionButton.disabled = option.disabled;
+        optionButton.dataset.value = option.value;
+        optionButton.setAttribute("role", "option");
+        optionButton.setAttribute("aria-selected", String(option.selected));
+        optionButton.classList.toggle("is-selected", option.selected);
+        optionButton.addEventListener("click", () => {
+          if (option.disabled) return;
+          select.value = option.value;
+          closeOpenSelectControl();
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        menu.append(optionButton);
+      });
+
+      document.body.append(menu);
+      const rect = trigger.getBoundingClientRect();
+      const menuHeight = Math.min(menu.scrollHeight, 264);
+      const spaceBelow = window.innerHeight - rect.bottom - 8;
+      const placeAbove = spaceBelow < Math.min(menuHeight, 180) && rect.top > spaceBelow;
+      const menuWidth = Math.max(rect.width, 180);
+      menu.style.width = `${menuWidth}px`;
+      menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - menuWidth - 8))}px`;
+      menu.style.top = `${placeAbove ? Math.max(8, rect.top - menuHeight - 4) : rect.bottom + 4}px`;
+      menu.style.maxHeight = `${menuHeight}px`;
+
+      control.classList.add("is-open");
+      trigger.setAttribute("aria-expanded", "true");
+      openSelectControl = { control, trigger, menu };
+    };
+
+    trigger.addEventListener("click", openMenu);
+    trigger.addEventListener("keydown", (event) => {
+      if (["Enter", " ", "ArrowDown", "ArrowUp"].includes(event.key)) {
+        event.preventDefault();
+        openMenu();
+      }
+    });
+    select.addEventListener("change", syncTrigger);
+    syncTrigger();
+  });
+
+  if (selectDismissalEventsBound) return;
+  selectDismissalEventsBound = true;
+  document.addEventListener("pointerdown", (event) => {
+    if (!openSelectControl) return;
+    const { control, menu } = openSelectControl;
+    if (!control.contains(event.target) && !menu.contains(event.target)) closeOpenSelectControl();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeOpenSelectControl();
+  });
+  window.addEventListener("resize", closeOpenSelectControl);
+  window.addEventListener("scroll", closeOpenSelectControl, true);
 }
 
 function resetViewState() {
