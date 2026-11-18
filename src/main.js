@@ -2047,9 +2047,7 @@ function inventorySummary(draft = state.inventoryDraft) {
 
 function renderMenu() {
   const editingItem = editingMenuItemId ? menuItemById(editingMenuItemId) : null;
-  const pendingImport = latestPendingSalesImport();
   const existingPosterNames = new Set(state.menuItems.map((item) => productNameKey(item.posterName)));
-  const menuLinesToImport = (pendingImport?.lines || []).filter((line) => !existingPosterNames.has(productNameKey(line.name)));
   const catalogItemsToImport = posterCatalog.filter((item) => !existingPosterNames.has(productNameKey(item.name)));
   const groups = [...new Set(state.menuItems.map((item) => item.group).filter(Boolean))].sort((first, second) => first.localeCompare(second));
   const visibleItems = filteredMenuItems().slice().sort((first, second) => first.name.localeCompare(second.name));
@@ -2066,7 +2064,6 @@ function renderMenu() {
           </div>
           <div class="inline-actions">
             ${catalogItemsToImport.length ? `<button class="small-button" id="import-poster-catalog" type="button">${icon("plus")}Import Poster catalog (${catalogItemsToImport.length})</button>` : ""}
-            ${menuLinesToImport.length ? `<button class="small-button" id="import-poster-menu-lines" type="button">${icon("plus")}Add ${menuLinesToImport.length} from sales</button>` : ""}
           </div>
         </div>
         ${state.menuItems.length ? `
@@ -2125,7 +2122,7 @@ function renderMenu() {
               </tbody>
             </table>
           </div>
-        ` : `<div class="empty-state"><strong>No menu items yet</strong><span>Import a Poster sales draft first, or add a menu item manually.</span></div>`}
+        ` : `<div class="empty-state"><strong>No menu items yet</strong><span>Add the items you sell, then connect each one to a recipe or a standalone stock product.</span></div>`}
       </article>
 
       <article class="panel">
@@ -2231,19 +2228,6 @@ function bindMenu() {
   }
 
   bindMenuRecipeForm();
-
-  document.querySelector("#import-poster-menu-lines")?.addEventListener("click", () => {
-    const pendingImport = latestPendingSalesImport();
-    if (!pendingImport) return;
-    const existingPosterNames = new Set(state.menuItems.map((item) => productNameKey(item.posterName)));
-    const lines = pendingImport.lines.filter((line) => !existingPosterNames.has(productNameKey(line.name)));
-    let nextMenuItemId = nextId(state.menuItems);
-    lines.forEach((line) => {
-      state.menuItems.push({ id: nextMenuItemId, name: line.name, group: "", posterName: line.name, active: true });
-      nextMenuItemId += 1;
-    });
-    saveState(`${lines.length} menu items added from the Poster draft.`);
-  });
 
   document.querySelector("#import-poster-catalog")?.addEventListener("click", () => {
     const existingPosterNames = new Set(state.menuItems.map((item) => productNameKey(item.posterName)));
@@ -2511,6 +2495,50 @@ function expectedClosingFor(product, summary) {
   return roundStock(stockFor(product.id) - (summary.consumption.get(product.id) || 0));
 }
 
+function monthlySalesSummary(sales = []) {
+  const result = {
+    salesLines: 0,
+    linkedLines: 0,
+    unlinkedLines: [],
+    consumption: new Map(),
+  };
+
+  sales.forEach((sale) => {
+    const menuItem = menuItemById(sale.menuItemId);
+    const soldQuantity = Number(sale.quantity || 0);
+    if (!menuItem || !positiveNumber(soldQuantity)) return;
+
+    result.salesLines += 1;
+    const standaloneProduct = standaloneProductForMenuItem(menuItem);
+    if (standaloneProduct) {
+      result.linkedLines += 1;
+      result.consumption.set(
+        standaloneProduct.id,
+        roundStock((result.consumption.get(standaloneProduct.id) || 0) + soldQuantity),
+      );
+      return;
+    }
+
+    const recipe = state.recipes.find((item) => Number(item.menuItemId) === menuItem.id);
+    const ingredients = recipeIngredientRows(recipe);
+    if (!ingredients.length) {
+      result.unlinkedLines.push({ name: menuItem.name, quantity: soldQuantity });
+      return;
+    }
+
+    result.linkedLines += 1;
+    ingredients.forEach((ingredient) => {
+      const usage = roundStock(ingredient.quantity * soldQuantity);
+      result.consumption.set(
+        ingredient.productId,
+        roundStock((result.consumption.get(ingredient.productId) || 0) + usage),
+      );
+    });
+  });
+
+  return result;
+}
+
 function reconciliationDraftFor(productId) {
   const draft = state.reconciliationDraft || { date: "", actuals: {}, comments: {} };
   return {
@@ -2580,10 +2608,10 @@ function renderMenuRecipeEditor(menuItem, recipe) {
 }
 
 function renderReconciliation() {
-  const pendingImport = latestPendingSalesImport();
-  const summary = salesImportSummary(pendingImport);
   const activeProducts = state.products.filter((product) => product.active);
   const draft = state.reconciliationDraft || { date: "", actuals: {}, comments: {} };
+  const sales = Array.isArray(draft.sales) ? draft.sales : [];
+  const summary = monthlySalesSummary(sales);
 
   return `
     <div class="reconciliation-layout">
@@ -2592,9 +2620,9 @@ function renderReconciliation() {
           <div>
             <p class="eyebrow">Monthly check</p>
             <h3>Close the month accurately</h3>
-            <p class="section-description">Paste sales from Poster, connect menu items to recipe cards, then enter the physical count once. Nothing is written to stock until you confirm.</p>
+            <p class="section-description">Add the sold menu items manually, then enter the physical shelf count. Recipes calculate the expected closing stock; nothing changes until you confirm.</p>
           </div>
-          ${pendingImport ? badge("Draft open", "warning") : badge("Ready for import", "neutral")}
+          ${sales.length ? badge("Draft open", "warning") : badge("Ready to count", "neutral")}
         </div>
       </article>
 
@@ -2602,62 +2630,50 @@ function renderReconciliation() {
         <div class="panel-header">
           <div>
             <p class="eyebrow">Step 1</p>
-            <h3>Poster sales</h3>
+            <h3>Sales for the month</h3>
+            <p class="section-description">Use the figures you check in Poster. Add only the menu items that were sold during this count period.</p>
           </div>
-          ${pendingImport ? `<button class="small-button" id="discard-sales-import" type="button">${icon("x")}Discard draft</button>` : ""}
         </div>
-        <form class="sales-import-form" id="sales-import-form">
-          <label>
-            From
-            <input type="date" name="from" value="${pendingImport?.periodFrom || today()}" required />
-          </label>
-          <label>
-            To
-            <input type="date" name="to" value="${pendingImport?.periodTo || today()}" required />
-          </label>
-          <label class="wide">
-            Poster export
-            <textarea name="sales" rows="7" placeholder="Product\tQuantity\nBorjomi\t24\nCoca-Cola\t18" required>${pendingImport ? pendingImport.lines.map((line) => `${line.name}\t${line.quantity}`).join("\n") : ""}</textarea>
-            <span class="field-hint">Copy the product and quantity columns from Poster. Tab-separated, semicolon, and comma files are supported.</span>
-          </label>
-          <div class="form-actions wide">
-            <button class="primary-button" type="submit">${icon("upload")}Import sales draft</button>
-          </div>
-        </form>
-        ${pendingImport ? `
-          <div class="reconciliation-summary">
-            <div><span>Sales lines</span><strong>${summary.salesLines}</strong></div>
-            <div><span>Recipe coverage</span><strong>${summary.linkedLines} / ${summary.salesLines}</strong></div>
-            <div><span>Needs setup</span><strong>${summary.unlinkedLines.length}</strong></div>
-          </div>
-          ${summary.unlinkedLines.length ? `
-            <div class="unlinked-sales">
-              <strong>Menu items without a recipe or standalone product</strong>
-              <div class="unlinked-sales-list">
-                ${summary.unlinkedLines.slice(0, 24).map((line) => `<span>${line.name} <b>${line.quantity}</b></span>`).join("")}
+        <form id="reconciliation-form">
+          <div class="monthly-sales-list" id="monthly-sales-list">
+            ${sales.map((sale, index) => `
+              <div class="monthly-sales-row" data-monthly-sale-row>
+                <select name="sale-menu-item-${index}" aria-label="Menu item sold">
+                  <option value="">Choose menu item</option>
+                  ${menuItemOptions(sale.menuItemId || "")}
+                </select>
+                <input name="sale-quantity-${index}" type="number" min="0" step="0.001" value="${sale.quantity ?? ""}" placeholder="Quantity sold" aria-label="Quantity sold" />
+                <button class="small-button icon-only" type="button" data-remove-monthly-sale="${index}" aria-label="Remove sold item" title="Remove">${icon("x")}</button>
               </div>
-              ${summary.unlinkedLines.length > 24 ? `<p>Plus ${summary.unlinkedLines.length - 24} more items.</p>` : ""}
-            </div>
-          ` : `<p class="reconciliation-success">All imported sales lines are configured.</p>`}
-        ` : ""}
-      </article>
-
-      ${pendingImport ? `
-        <article class="panel">
-          <div class="panel-header">
-            <div>
-              <p class="eyebrow">Step 2</p>
-              <h3>Physical count</h3>
-              <p class="section-description">Expected closing is calculated from receipts, current movements, and this Poster draft. Enter the real shelf count for every product.</p>
-            </div>
+            `).join("")}
           </div>
-          <form id="reconciliation-form">
+          <button class="small-button" id="add-monthly-sale" type="button">${icon("plus")}Add sold item</button>
+          ${sales.length ? `
+            <div class="reconciliation-summary">
+              <div><span>Menu items</span><strong>${summary.salesLines}</strong></div>
+              <div><span>Recipe coverage</span><strong>${summary.linkedLines} / ${summary.salesLines}</strong></div>
+              <div><span>Needs setup</span><strong>${summary.unlinkedLines.length}</strong></div>
+            </div>
+            ${summary.unlinkedLines.length ? `
+              <div class="unlinked-sales">
+                <strong>Menu items without a recipe or standalone product</strong>
+                <div class="unlinked-sales-list">
+                  ${summary.unlinkedLines.slice(0, 24).map((line) => `<span>${line.name} <b>${line.quantity}</b></span>`).join("")}
+                </div>
+              </div>
+            ` : `<p class="reconciliation-success">All added menu items are configured.</p>`}
+          ` : `<p class="field-hint monthly-sales-empty">No sales entered. You can still confirm a physical count without adding sales.</p>`}
+          <div class="reconciliation-count-heading">
+            <p class="eyebrow">Step 2</p>
+            <h3>Physical count</h3>
+            <p class="section-description">Expected closing includes current stock movements and the menu items added above. Enter the real shelf count for every product.</p>
+          </div>
             <div class="reconciliation-date-row">
               <label>
                 Count date
-                <input type="date" name="date" value="${draft.date || pendingImport.periodTo || today()}" required />
+                <input type="date" name="date" value="${draft.date || today()}" required />
               </label>
-              <span>${pendingImport.periodFrom} - ${pendingImport.periodTo}</span>
+              <span>Manual monthly check</span>
             </div>
             <div class="table-scroll reconciliation-table-scroll">
               <table>
@@ -2672,7 +2688,7 @@ function renderReconciliation() {
                     return `
                       <tr data-reconciliation-row="${product.id}">
                         <td><strong>${product.name}</strong><span class="table-unit">${product.unit}</span></td>
-                        <td class="numeric">${expected}</td>
+                        <td class="numeric" data-reconciliation-expected="${product.id}">${expected}</td>
                         <td class="numeric"><input class="table-input numeric" name="actual-${product.id}" type="number" min="0" step="0.001" value="${actualValue}" placeholder="Count" required /></td>
                         <td class="numeric ${difference && difference !== 0 ? "danger-text" : ""}" data-reconciliation-difference="${product.id}">${difference ?? "-"}</td>
                         <td><input class="table-input comment-input" name="comment-${product.id}" value="${countDraft.comment}" placeholder="Optional" /></td>
@@ -2686,9 +2702,8 @@ function renderReconciliation() {
               <button class="ghost-button" id="save-reconciliation-draft" type="button">${icon("file")}Save draft</button>
               <button class="primary-button" type="submit">${icon("check")}Confirm monthly check</button>
             </div>
-          </form>
-        </article>
-      ` : ""}
+        </form>
+      </article>
     </div>
   `;
 }
@@ -2700,73 +2715,50 @@ function collectReconciliationDraft(form) {
     actuals[String(product.id)] = form[`actual-${product.id}`].value;
     comments[String(product.id)] = form[`comment-${product.id}`].value.trim();
   });
-  return { date: form.date.value || today(), actuals, comments };
+  const sales = [...form.querySelectorAll("[data-monthly-sale-row]")].map((row) => ({
+    menuItemId: Number(row.querySelector('select')?.value || 0),
+    quantity: row.querySelector('input[type="number"]')?.value || "",
+  }));
+  return { date: form.date.value || today(), actuals, comments, sales };
 }
 
 function bindReconciliation() {
-  const salesImportForm = document.querySelector("#sales-import-form");
-  salesImportForm?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const lines = parsePosterSales(form.get("sales"));
-    if (!lines.length) {
-      showNotice("No sales lines found. Paste the product and quantity columns from Poster.");
-      return;
-    }
-    if (form.get("from") > form.get("to")) {
-      showNotice("The start date must be before the end date.");
-      return;
-    }
-    const overlapsConfirmedPeriod = state.salesImports.some((item) => item.appliedAt
-      && form.get("from") <= item.periodTo
-      && form.get("to") >= item.periodFrom);
-    if (overlapsConfirmedPeriod) {
-      showNotice("This period overlaps a confirmed Poster import. Use a separate, non-overlapping period to avoid double-counting sales.");
-      return;
-    }
-    const existing = latestPendingSalesImport();
-    const newImport = {
-      id: existing?.id || Date.now(),
-      periodFrom: form.get("from"),
-      periodTo: form.get("to"),
-      importedAt: new Date().toISOString(),
-      lines,
-      appliedAt: null,
-    };
-    state.salesImports = existing
-      ? state.salesImports.map((item) => (item.id === existing.id ? newImport : item))
-      : [...state.salesImports, newImport];
-    state.reconciliationDraft = { date: newImport.periodTo, actuals: {}, comments: {} };
-    saveState(`${lines.length} Poster sales lines saved as a draft.`);
-  });
-
-  document.querySelector("#discard-sales-import")?.addEventListener("click", () => {
-    const pendingImport = latestPendingSalesImport();
-    if (!pendingImport || !confirm("Discard this Poster sales draft? No stock has been changed.")) return;
-    state.salesImports = state.salesImports.filter((item) => item.id !== pendingImport.id);
-    state.reconciliationDraft = { date: "", actuals: {}, comments: {} };
-    saveState("Poster sales draft discarded.");
-  });
-
   const reconciliationForm = document.querySelector("#reconciliation-form");
   if (!reconciliationForm) return;
-  const pendingImport = latestPendingSalesImport();
-  const summary = salesImportSummary(pendingImport);
   const recalculate = () => {
+    const currentDraft = collectReconciliationDraft(reconciliationForm);
+    const summary = monthlySalesSummary(currentDraft.sales);
     state.products.filter((product) => product.active).forEach((product) => {
       const rawActual = reconciliationForm[`actual-${product.id}`].value;
+      const expected = expectedClosingFor(product, summary);
       const differenceCell = reconciliationForm.querySelector(`[data-reconciliation-difference="${product.id}"]`);
+      const expectedCell = reconciliationForm.querySelector(`[data-reconciliation-expected="${product.id}"]`);
+      expectedCell.textContent = expected;
       if (rawActual === "") {
         differenceCell.textContent = "-";
         differenceCell.classList.remove("danger-text");
         return;
       }
-      const difference = roundStock(Number(rawActual) - expectedClosingFor(product, summary));
+      const difference = roundStock(Number(rawActual) - expected);
       differenceCell.textContent = difference;
       differenceCell.classList.toggle("danger-text", difference !== 0);
     });
   };
-  reconciliationForm.querySelectorAll('input[type="number"]').forEach((input) => input.addEventListener("input", recalculate));
+  reconciliationForm.querySelectorAll('input[type="number"], [data-monthly-sale-row] select').forEach((input) => input.addEventListener("input", recalculate));
+  reconciliationForm.querySelectorAll("[data-monthly-sale-row] select").forEach((select) => select.addEventListener("change", recalculate));
+  reconciliationForm.querySelector("#add-monthly-sale")?.addEventListener("click", () => {
+    const draft = collectReconciliationDraft(reconciliationForm);
+    state.reconciliationDraft = { ...draft, sales: [...draft.sales, { menuItemId: "", quantity: "" }] };
+    notice = "";
+    renderShell();
+  });
+  reconciliationForm.querySelectorAll("[data-remove-monthly-sale]").forEach((button) => button.addEventListener("click", () => {
+    const draft = collectReconciliationDraft(reconciliationForm);
+    draft.sales.splice(Number(button.dataset.removeMonthlySale), 1);
+    state.reconciliationDraft = draft;
+    notice = "";
+    renderShell();
+  }));
   reconciliationForm.querySelector("#save-reconciliation-draft")?.addEventListener("click", () => {
     state.reconciliationDraft = collectReconciliationDraft(reconciliationForm);
     saveState("Monthly check draft saved.");
@@ -2779,9 +2771,14 @@ function bindReconciliation() {
       showNotice(`Enter the physical count for all products. ${missingCount} still need a count.`);
       return;
     }
-    const finalSummary = salesImportSummary(pendingImport);
+    const invalidSales = draft.sales.some((sale) => !sale.menuItemId || !positiveNumber(sale.quantity));
+    if (invalidSales) {
+      showNotice("Choose a menu item and enter a quantity for every sales row.");
+      return;
+    }
+    const finalSummary = monthlySalesSummary(draft.sales);
     if (finalSummary.unlinkedLines.length) {
-      showNotice(`Configure every imported menu item before confirming. ${finalSummary.unlinkedLines.length} still need a recipe or standalone product.`);
+      showNotice(`Configure every sold menu item before confirming. ${finalSummary.unlinkedLines.length} still need a recipe or standalone product.`);
       return;
     }
     const hasInvalidActual = state.products
@@ -2797,16 +2794,16 @@ function bindReconciliation() {
       actual: Number(draft.actuals[String(product.id)]),
       comment: draft.comments[String(product.id)],
     })).filter((item) => roundStock(item.actual - item.expected) !== 0);
-    const confirmed = confirm(`Confirm this monthly check? Poster sales will create ${finalSummary.consumption.size} usage entries and ${adjustments.length} stock adjustment(s). This cannot be undone automatically.`);
+    const confirmed = confirm(`Confirm this monthly check? Menu sales will create ${finalSummary.consumption.size} usage entries and ${adjustments.length} stock adjustment(s). This cannot be undone automatically.`);
     if (!confirmed) return;
 
     finalSummary.consumption.forEach((quantity, productId) => {
       const product = productById(productId);
       if (!product || !positiveNumber(quantity)) return;
       state.movements.push({
-        id: nextId(state.movements), type: "outgoing", productId: product.id, date: pendingImport.periodTo,
-        quantity: -Math.abs(quantity), unitPrice: Number(product.price), reason: "Poster sales",
-        comment: `Poster sales ${pendingImport.periodFrom} - ${pendingImport.periodTo}`,
+        id: nextId(state.movements), type: "outgoing", productId: product.id, date: draft.date,
+        quantity: -Math.abs(quantity), unitPrice: Number(product.price), reason: "Menu sales",
+        comment: "Monthly check manual sales",
       });
     });
     adjustments.forEach(({ product, expected, actual, comment }) => {
@@ -2815,9 +2812,8 @@ function bindReconciliation() {
         quantity: roundStock(actual - expected), unitPrice: Number(product.price), reason: "Monthly check", comment,
       });
     });
-    state.salesImports = state.salesImports.map((item) => item.id === pendingImport.id ? { ...item, appliedAt: new Date().toISOString() } : item);
     state.reconciliationDraft = { date: "", actuals: {}, comments: {} };
-    saveState("Monthly check confirmed. Poster usage and count adjustments are saved in history.");
+    saveState("Monthly check confirmed. Menu usage and count adjustments are saved in history.");
   });
 }
 

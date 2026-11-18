@@ -1566,6 +1566,33 @@ tbody tr:last-child td {
   gap: 14px;
 }
 
+.monthly-sales-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.monthly-sales-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.35fr) 36px;
+  align-items: center;
+  gap: 10px;
+}
+
+.reconciliation-count-heading {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.reconciliation-count-heading h3 {
+  margin: 4px 0 0;
+}
+
+.monthly-sales-empty {
+  margin: 12px 0 0;
+}
+
 .field-hint {
   color: var(--text-soft);
   font-size: 0.78rem;
