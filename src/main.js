@@ -456,7 +456,6 @@ function defaultMenuFilters() {
   return {
     search: "",
     group: "all",
-    status: "all",
   };
 }
 
@@ -579,7 +578,7 @@ function cloudRowsToState(products, suppliers, movements, appStates) {
       category: product.category,
       unit: product.unit,
       minStock: 0,
-      price: Number(product.purchase_price),
+      price: 0,
       openingStock: Number(product.opening_stock),
       active: product.is_active,
     })),
@@ -597,7 +596,7 @@ function cloudRowsToState(products, suppliers, movements, appStates) {
       supplierId: movement.supplier_id === null ? undefined : Number(movement.supplier_id),
       date: movement.movement_date,
       quantity: Number(movement.quantity_delta),
-      unitPrice: Number(movement.unit_price),
+      unitPrice: 0,
       reason: movement.reason || "",
       comment: movement.comment || "",
     })),
@@ -654,7 +653,8 @@ async function writeCloudState() {
     unit: product.unit,
     // The legacy database column is kept for compatibility, but no longer drives the app.
     minimum_stock: 0,
-    purchase_price: product.price,
+    // The legacy price columns are kept for database compatibility only.
+    purchase_price: 0,
     opening_stock: product.openingStock,
     is_active: product.active,
   }));
@@ -665,7 +665,7 @@ async function writeCloudState() {
     movement_type: movement.type,
     movement_date: movement.date,
     quantity_delta: movement.quantity,
-    unit_price: movement.unitPrice,
+    unit_price: 0,
     reason: movement.reason || null,
     comment: movement.comment || null,
   }));
@@ -914,13 +914,6 @@ function formatDate(dateValue) {
   return `${day}.${month}.${year}`;
 }
 
-function money(value) {
-  return `₾${Number(value || 0).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-}
-
 function productById(id) {
   return state.products.find((product) => product.id === Number(id));
 }
@@ -937,31 +930,8 @@ function stockFor(productId) {
   return roundStock((product?.openingStock || 0) + movementTotal);
 }
 
-function productValue(product) {
-  return stockFor(product.id) * Number(product.price || 0);
-}
-
-function topStockProducts(limit = 5) {
-  return state.products
-    .slice()
-    .sort((first, second) => productValue(second) - productValue(first))
-    .slice(0, limit);
-}
-
-function totalStockValue() {
-  return state.products.reduce((sum, product) => sum + productValue(product), 0);
-}
-
 function roundStock(value) {
   return Math.round(Number(value || 0) * 1000) / 1000;
-}
-
-function movementAmount(movement) {
-  return Math.abs(Number(movement.quantity || 0) * Number(movement.unitPrice || 0));
-}
-
-function signedMovementValue(movement) {
-  return Number(movement.quantity || 0) * Number(movement.unitPrice || 0);
 }
 
 function daysAgo(days) {
@@ -973,10 +943,6 @@ function daysAgo(days) {
 function movementsSince(days, type = null) {
   const from = daysAgo(days);
   return state.movements.filter((movement) => movement.date >= from && (!type || movement.type === type));
-}
-
-function movementValueTotal(movements) {
-  return movements.reduce((sum, movement) => sum + movementAmount(movement), 0);
 }
 
 function movementLabel(type) {
@@ -1517,13 +1483,10 @@ function filteredProducts() {
 function filteredMenuItems() {
   const search = menuFilters.search.trim().toLowerCase();
   return state.menuItems.filter((item) => {
-    const matchesSearch = !search || [item.name, item.posterName, item.group]
+    const matchesSearch = !search || [item.name, item.group]
       .some((value) => String(value || "").toLowerCase().includes(search));
     const matchesGroup = menuFilters.group === "all" || item.group === menuFilters.group;
-    const matchesStatus = menuFilters.status === "all"
-      || (menuFilters.status === "active" && item.active !== false)
-      || (menuFilters.status === "inactive" && item.active === false);
-    return matchesSearch && matchesGroup && matchesStatus;
+    return matchesSearch && matchesGroup;
   });
 }
 
@@ -1545,16 +1508,18 @@ function renderOverview() {
   const outgoing7 = movementsSince(7, "outgoing");
   const movements7 = incoming7.length + outgoing7.length;
   const latestMovements = state.movements.slice(-5).reverse();
-  const valueLeaders = topStockProducts(5);
+  const categories = state.products
+    .filter((product) => product.active)
+    .reduce((result, product) => result.set(product.category, (result.get(product.category) || 0) + 1), new Map());
   return `
     <div class="metric-grid">
       <article class="metric-card">
         <div class="metric-card-header">
           <span class="metric-icon blue">${icon("file")}</span>
-          <span>Stock value</span>
+          <span>Active products</span>
         </div>
-        <strong>${money(totalStockValue())}</strong>
-        <small>${state.products.filter((product) => product.active).length} active products</small>
+        <strong>${state.products.filter((product) => product.active).length}</strong>
+        <small>Products available to use</small>
       </article>
       <article class="metric-card">
         <div class="metric-card-header">
@@ -1569,16 +1534,16 @@ function renderOverview() {
           <span class="metric-icon green">${icon("download")}</span>
           <span>7 day incoming</span>
         </div>
-        <strong>${money(movementValueTotal(incoming7))}</strong>
-        <small>${incoming7.length} received records</small>
+        <strong>${incoming7.length}</strong>
+        <small>Received stock records</small>
       </article>
       <article class="metric-card">
         <div class="metric-card-header">
           <span class="metric-icon red">${icon("upload")}</span>
           <span>7 day outgoing</span>
         </div>
-        <strong>${money(movementValueTotal(outgoing7))}</strong>
-        <small>${outgoing7.length} usage records</small>
+        <strong>${outgoing7.length}</strong>
+        <small>Usage and write-off records</small>
       </article>
     </div>
 
@@ -1598,22 +1563,22 @@ function renderOverview() {
         <article class="panel">
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Value</p>
-              <h3>Highest stock value</h3>
+              <p class="eyebrow">Catalog</p>
+              <h3>Products by category</h3>
             </div>
             <button class="panel-link" data-section="products" type="button" aria-label="Open products" title="Open products">${icon("arrowUpRight")}</button>
           </div>
           <div class="value-list">
-            ${valueLeaders.slice(0, 3).map((product, index) => `
+            ${[...categories.entries()].sort((first, second) => second[1] - first[1]).slice(0, 3).map(([category, count], index) => `
               <div class="value-row">
                 <span>${index + 1}</span>
                 <div>
-                  <strong>${product.name}</strong>
-                  <small>${stockFor(product.id)} ${product.unit} · ${product.category}</small>
+                  <strong>${category}</strong>
+                  <small>Product group</small>
                 </div>
-                <b>${money(productValue(product))}</b>
+                <b>${count}</b>
               </div>
-            `).join("")}
+            `).join("") || `<p class="empty-state">No active products yet.</p>`}
           </div>
         </article>
       </div>
@@ -1674,7 +1639,6 @@ function renderProducts() {
                 <th>Name</th>
                 <th>Category</th>
                 <th>Unit</th>
-                <th class="numeric">Price</th>
                 <th class="numeric">Current stock</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -1688,7 +1652,6 @@ function renderProducts() {
                     <td><strong>${product.name}</strong></td>
                     <td>${product.category}</td>
                     <td>${product.unit}</td>
-                    <td class="numeric">${money(product.price)}</td>
                     <td class="numeric">${stock}</td>
                     <td>${badge(product.active ? "Active" : "Inactive", product.active ? "success" : "neutral")}</td>
                     <td>
@@ -1699,13 +1662,13 @@ function renderProducts() {
                   </tr>
                   ${editingProduct?.id === product.id ? `
                     <tr class="inline-editor-row">
-                      <td colspan="7">
+                      <td colspan="6">
                         ${renderProductEditor(editingProduct, categories, units, "inline")}
                       </td>
                     </tr>
                   ` : ""}
                 `;
-              }).join("") : `<tr><td colspan="8"><p class="empty-state">No products match these filters.</p></td></tr>`}
+              }).join("") : `<tr><td colspan="6"><p class="empty-state">No products match these filters.</p></td></tr>`}
             </tbody>
           </table>
         </div>
@@ -1717,10 +1680,10 @@ function renderProducts() {
 }
 
 function renderProductEditor(editingProduct, categories, units, placement = "side") {
-  const productCategory = editingProduct?.category || "Herbs";
-  const isNewCategory = !categories.includes(productCategory);
-  const productUnit = editingProduct?.unit || "kg";
-  const isNewUnit = !units.includes(productUnit);
+  const productCategory = editingProduct?.category || "";
+  const isNewCategory = Boolean(productCategory && !categories.includes(productCategory));
+  const productUnit = editingProduct?.unit || "";
+  const isNewUnit = Boolean(productUnit && !units.includes(productUnit));
   const panelClass = placement === "inline" ? "product-editor inline-product-editor" : "panel product-editor";
 
   return `
@@ -1743,6 +1706,7 @@ function renderProductEditor(editingProduct, categories, units, placement = "sid
             </button>
           </div>
           <select name="category" id="saved-category" ${isNewCategory ? "hidden disabled" : ""}>
+            <option value="">Choose category</option>
             ${categories.map((category) => `<option value="${category}" ${productCategory === category ? "selected" : ""}>${category}</option>`).join("")}
           </select>
           <input name="category" id="new-category" type="text" value="${isNewCategory ? productCategory : ""}" placeholder="New category name" ${isNewCategory ? "required" : "hidden disabled"} />
@@ -1755,12 +1719,12 @@ function renderProductEditor(editingProduct, categories, units, placement = "sid
             </button>
           </div>
           <select name="unit" id="saved-unit" ${isNewUnit ? "hidden disabled" : ""}>
+            <option value="">Choose unit</option>
             ${units.map((unit) => `<option value="${unit}" ${productUnit === unit ? "selected" : ""}>${unit}</option>`).join("")}
           </select>
           <input name="unit" id="new-unit" type="text" value="${isNewUnit ? productUnit : ""}" placeholder="New unit name" ${isNewUnit ? "required" : "hidden disabled"} />
         </div>
         ${numberInput("Opening stock", "openingStock", String(editingProduct?.openingStock ?? 0), true)}
-        ${numberInput("Purchase price", "price", formatEditablePrice(editingProduct?.price ?? 6), true)}
         ${editingProduct ? `
           <div class="product-status-row">
             <label class="checkbox-line">
@@ -1787,8 +1751,6 @@ function renderProductEditor(editingProduct, categories, units, placement = "sid
 }
 
 function renderIncoming() {
-  const defaultProduct = firstActiveProduct();
-  const defaultPrice = defaultProduct?.price || 0;
   const recentIncoming = movementsSince(7, "incoming");
   return `
     <div class="form-layout">
@@ -1810,11 +1772,6 @@ function renderIncoming() {
             <select name="productId">${productOptions()}</select>
           </label>
           ${numberInput("Quantity", "quantity", "5", true)}
-          ${numberInput("Unit price", "unitPrice", String(defaultPrice), true)}
-          <label>
-            Total
-            <input name="total" value="${money(defaultPrice * 5)}" readonly />
-          </label>
           <label class="wide">
             Comment
             <textarea name="comment" placeholder="Invoice number or delivery notes"></textarea>
@@ -1831,8 +1788,8 @@ function renderIncoming() {
             <strong>${recentIncoming.length}</strong>
           </div>
           <div>
-            <span>Received value</span>
-            <strong>${money(movementValueTotal(recentIncoming))}</strong>
+            <span>Active products</span>
+            <strong>${state.products.filter((product) => product.active).length}</strong>
           </div>
         </div>
         <ul class="support-list">
@@ -1895,8 +1852,8 @@ function renderOutgoing() {
             <strong>${recentOutgoing.length}</strong>
           </div>
           <div>
-            <span>Usage value</span>
-            <strong>${money(movementValueTotal(recentOutgoing))}</strong>
+            <span>Active products</span>
+            <strong>${state.products.filter((product) => product.active).length}</strong>
           </div>
         </div>
         <ul class="support-list">
@@ -1933,8 +1890,8 @@ function renderInventory() {
             <strong id="inventory-change-count">${summary.changedRows}</strong>
           </div>
           <div>
-            <span>Difference value</span>
-            <strong id="inventory-difference-value">${money(summary.differenceValue)}</strong>
+            <span>Products counted</span>
+            <strong>${activeProducts.length}</strong>
           </div>
           <div>
             <span>Draft status</span>
@@ -1949,7 +1906,6 @@ function renderInventory() {
                 <th class="numeric">System stock</th>
                 <th class="numeric">Actual stock</th>
                 <th class="numeric">Difference</th>
-                <th class="numeric">Difference value</th>
                 <th>Comment</th>
               </tr>
             </thead>
@@ -1965,7 +1921,6 @@ function renderInventory() {
                     <td class="numeric">${stock} ${product.unit}</td>
                     <td class="numeric"><input class="table-input numeric" type="number" step="0.001" name="actual-${product.id}" value="${actual}" /></td>
                     <td class="numeric ${diff !== 0 ? "danger-text" : ""}" data-diff="${product.id}">${diff}</td>
-                    <td class="numeric" data-value="${product.id}">${money(diff * product.price)}</td>
                     <td><input class="table-input comment-input" name="comment-${product.id}" value="${draftItem.comment || ""}" placeholder="Optional" /></td>
                   </tr>
                 `;
@@ -2011,20 +1966,19 @@ function inventorySummary(draft = state.inventoryDraft) {
 
         if (draftItem) summary.hasDraft = true;
         if (diff !== 0) summary.changedRows += 1;
-        summary.differenceValue += diff * Number(product.price || 0);
         return summary;
       },
-      { changedRows: 0, differenceValue: 0, hasDraft: Boolean(draft?.date) },
+      { changedRows: 0, hasDraft: Boolean(draft?.date) },
     );
 }
 
 function renderMenu() {
   const editingItem = editingMenuItemId ? menuItemById(editingMenuItemId) : null;
-  const existingPosterNames = new Set(state.menuItems.map((item) => productNameKey(item.posterName)));
+  const existingPosterNames = new Set(state.menuItems.map((item) => productNameKey(item.name)));
   const catalogItemsToImport = posterCatalog.filter((item) => !existingPosterNames.has(productNameKey(item.name)));
   const groups = [...new Set(state.menuItems.map((item) => item.group).filter(Boolean))].sort((first, second) => first.localeCompare(second));
   const visibleItems = filteredMenuItems().slice().sort((first, second) => first.name.localeCompare(second.name));
-  const hasActiveFilters = Boolean(menuFilters.search || menuFilters.group !== "all" || menuFilters.status !== "all");
+  const hasActiveFilters = Boolean(menuFilters.search || menuFilters.group !== "all");
 
   return `
     <div class="form-layout">
@@ -2040,7 +1994,7 @@ function renderMenu() {
           </div>
         </div>
         ${state.menuItems.length ? `
-          <form class="table-toolbar" id="menu-toolbar">
+          <form class="table-toolbar menu-toolbar" id="menu-toolbar">
             <label class="search-field">
               ${icon("search")}
               <input name="search" value="${menuFilters.search}" placeholder="Search menu" />
@@ -2052,19 +2006,11 @@ function renderMenu() {
                 ${groups.map((group) => `<option value="${group}" ${menuFilters.group === group ? "selected" : ""}>${group}</option>`).join("")}
               </select>
             </label>
-            <label>
-              Status
-              <select name="status">
-                <option value="all" ${menuFilters.status === "all" ? "selected" : ""}>All statuses</option>
-                <option value="active" ${menuFilters.status === "active" ? "selected" : ""}>Active</option>
-                <option value="inactive" ${menuFilters.status === "inactive" ? "selected" : ""}>Inactive</option>
-              </select>
-            </label>
           </form>
           ${hasActiveFilters ? `<p class="filter-result-message">Showing ${visibleItems.length} ${visibleItems.length === 1 ? "menu item" : "menu items"}</p>` : ""}
           <div class="table-scroll">
             <table class="menu-table">
-              <thead><tr><th>Item</th><th>Group</th><th>Status</th><th>Recipe</th><th>Action</th></tr></thead>
+              <thead><tr><th>Item</th><th>Group</th><th>Recipe</th><th>Action</th></tr></thead>
               <tbody>
                 ${visibleItems.length ? visibleItems.map((item) => {
                   const recipe = state.recipes.find((entry) => Number(entry.menuItemId) === item.id);
@@ -2077,10 +2023,8 @@ function renderMenu() {
                           <strong data-no-translate>${item.name}</strong>
                           <button class="small-button compact icon-only" data-edit-menu-item="${item.id}" type="button" aria-label="Edit menu item" title="Edit menu item">${icon("edit")}</button>
                         </div>
-                        ${item.posterName !== item.name ? `<span class="table-subline" data-no-translate>${item.posterName}</span>` : ""}
                       </td>
                       <td data-no-translate>${item.group || "-"}</td>
-                      <td>${badge(item.active !== false ? "Active" : "Inactive", item.active !== false ? "success" : "neutral")}</td>
                       <td>${configuration === "recipe" ? badge("Recipe ready", "success") : configuration === "standalone" ? badge("Standalone item", "info") : badge("Needs setup", "neutral")}</td>
                       <td>
                         <button class="small-button compact" data-compose-recipe="${item.id}" type="button">
@@ -2090,11 +2034,11 @@ function renderMenu() {
                     </tr>
                     ${recipeEditorOpen ? `
                       <tr class="inline-editor-row">
-                        <td colspan="5">${renderMenuRecipeEditor(item, recipe)}</td>
+                        <td colspan="4">${renderMenuRecipeEditor(item, recipe)}</td>
                       </tr>
                     ` : ""}
                   `;
-                }).join("") : `<tr><td colspan="5"><p class="empty-state">No menu items match these filters.</p></td></tr>`}
+                }).join("") : `<tr><td colspan="4"><p class="empty-state">No menu items match these filters.</p></td></tr>`}
               </tbody>
             </table>
           </div>
@@ -2115,22 +2059,19 @@ function renderMenu() {
             Menu item
             <input name="name" data-no-translate value="${editingItem?.name || ""}" placeholder="For example, Caesar salad" required />
           </label>
-          <label>
-            Menu group
-            <div class="menu-group-control">
-              <select name="group-choice" data-menu-group-choice>
-                <option value="">No group</option>
-                ${groups.map((group) => `<option value="${group}" ${editingItem?.group === group ? "selected" : ""}>${group}</option>`).join("")}
-                <option value="__new__">New group</option>
-              </select>
-              <input name="new-group" data-new-menu-group data-no-translate class="is-hidden" placeholder="For example, Main dishes" />
+          <div class="field-choice-control">
+            <div class="field-label-row">
+              <span>Category</span>
+              <button class="small-button compact field-choice-button" type="button" id="toggle-menu-group-mode" data-mode="saved">
+                ${icon("plus")}New category
+              </button>
             </div>
-          </label>
-          <label>
-            Poster name
-            <input name="poster-name" data-no-translate value="${editingItem?.posterName || ""}" placeholder="Exact title from Poster" required />
-          </label>
-          <label class="checkbox-line"><input name="active" type="checkbox" ${editingItem?.active !== false ? "checked" : ""} />Active menu item</label>
+            <select name="group" id="saved-menu-group">
+              <option value="">No category</option>
+              ${groups.map((group) => `<option value="${group}" ${editingItem?.group === group ? "selected" : ""}>${group}</option>`).join("")}
+            </select>
+            <input name="group" id="new-menu-group" data-no-translate type="text" placeholder="New category name" hidden disabled />
+          </div>
           <div class="form-actions">
             <button class="primary-button" type="submit">${icon("check")}${editingItem ? "Update menu item" : "Save menu item"}</button>
           </div>
@@ -2146,31 +2087,23 @@ function bindMenu() {
     const form = new FormData(event.currentTarget);
     const itemId = Number(form.get("id") || 0);
     const name = String(form.get("name") || "").trim();
-    const posterName = String(form.get("poster-name") || "").trim();
-    const duplicate = state.menuItems.find((item) => productNameKey(item.posterName) === productNameKey(posterName) && item.id !== itemId);
-    if (!name || !posterName) {
-      showNotice("Menu item and exact Poster name are required.");
+    const duplicate = state.menuItems.find((item) => productNameKey(item.name) === productNameKey(name) && item.id !== itemId);
+    if (!name) {
+      showNotice("Menu item name is required.");
       return;
     }
     if (duplicate) {
-      showNotice("A menu item already uses this Poster name.");
+      showNotice("A menu item with this name already exists.");
       return;
     }
-    const selectedGroup = String(form.get("group-choice") || "");
-    const group = selectedGroup === "__new__"
-      ? String(form.get("new-group") || "").trim()
-      : selectedGroup;
-    if (selectedGroup === "__new__" && !group) {
-      showNotice("Enter a name for the new menu group.");
-      return;
-    }
+    const group = String(form.get("group") || "").trim();
     const payload = {
       ...editingItem,
       id: itemId || nextId(state.menuItems),
       name,
       group,
-      posterName,
-      active: form.get("active") === "on",
+      posterName: name,
+      active: true,
     };
     state.menuItems = itemId ? state.menuItems.map((item) => item.id === itemId ? payload : item) : [...state.menuItems, payload];
     editingMenuItemId = null;
@@ -2191,15 +2124,13 @@ function bindMenu() {
     renderShell();
   });
 
-  const groupChoice = document.querySelector("[data-menu-group-choice]");
-  const newGroupInput = document.querySelector("[data-new-menu-group]");
-  groupChoice?.addEventListener("change", () => {
-    const isNewGroup = groupChoice.value === "__new__";
-    newGroupInput.classList.toggle("is-hidden", !isNewGroup);
-    newGroupInput.disabled = !isNewGroup;
-    if (isNewGroup) newGroupInput.focus();
-  });
-  if (newGroupInput) newGroupInput.disabled = groupChoice?.value !== "__new__";
+  bindChoiceMode(
+    document.querySelector("#toggle-menu-group-mode"),
+    document.querySelector("#saved-menu-group"),
+    document.querySelector("#new-menu-group"),
+    "New category",
+    "Saved categories",
+  );
 
   document.querySelectorAll("[data-compose-recipe]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -2219,7 +2150,7 @@ function bindMenu() {
       menuFilters.search = menuToolbar.elements.search.value;
       renderShell();
     });
-    ["group", "status"].forEach((field) => {
+    ["group"].forEach((field) => {
       menuToolbar.elements[field].addEventListener("change", () => {
         menuFilters[field] = menuToolbar.elements[field].value;
         renderShell();
@@ -2230,7 +2161,7 @@ function bindMenu() {
   bindMenuRecipeForm();
 
   document.querySelector("#import-poster-catalog")?.addEventListener("click", () => {
-    const existingPosterNames = new Set(state.menuItems.map((item) => productNameKey(item.posterName)));
+    const existingPosterNames = new Set(state.menuItems.map((item) => productNameKey(item.name)));
     const items = posterCatalog.filter((item) => !existingPosterNames.has(productNameKey(item.name)));
     let nextMenuItemId = nextId(state.menuItems);
 
@@ -2376,10 +2307,9 @@ function recipeMenuLabel(recipe) {
 
 function menuItemOptions(selectedId = "") {
   return state.menuItems
-    .filter((menuItem) => menuItem.active !== false)
     .slice()
     .sort((first, second) => first.name.localeCompare(second.name))
-    .map((menuItem) => `<option value="${menuItem.id}" ${Number(selectedId) === menuItem.id ? "selected" : ""}>${menuItem.name}${menuItem.posterName !== menuItem.name ? ` - ${menuItem.posterName}` : ""}</option>`)
+    .map((menuItem) => `<option value="${menuItem.id}" ${Number(selectedId) === menuItem.id ? "selected" : ""}>${menuItem.name}</option>`)
     .join("");
 }
 
@@ -2802,14 +2732,14 @@ function bindReconciliation() {
       if (!product || !positiveNumber(quantity)) return;
       state.movements.push({
         id: nextId(state.movements), type: "outgoing", productId: product.id, date: draft.date,
-        quantity: -Math.abs(quantity), unitPrice: Number(product.price), reason: "Menu sales",
+        quantity: -Math.abs(quantity), unitPrice: 0, reason: "Menu sales",
         comment: "Monthly check manual sales",
       });
     });
     adjustments.forEach(({ product, expected, actual, comment }) => {
       state.movements.push({
         id: nextId(state.movements), type: "adjustment", productId: product.id, date: draft.date,
-        quantity: roundStock(actual - expected), unitPrice: Number(product.price), reason: "Monthly check", comment,
+        quantity: roundStock(actual - expected), unitPrice: 0, reason: "Monthly check", comment,
       });
     });
     state.reconciliationDraft = { date: "", actuals: {}, comments: {} };
@@ -3006,8 +2936,8 @@ function movementsForActiveReport(baseMovements) {
 function reportSummary(movements) {
   return [
     { label: "Records", value: String(movements.length) },
-    { label: "Total value", value: money(movements.reduce((sum, movement) => sum + movementAmount(movement), 0)) },
-    { label: "Net stock value", value: money(movements.reduce((sum, movement) => sum + signedMovementValue(movement), 0)) },
+    { label: "Quantity moved", value: roundStock(movements.reduce((sum, movement) => sum + Math.abs(Number(movement.quantity || 0)), 0)) },
+    { label: "Net quantity", value: roundStock(movements.reduce((sum, movement) => sum + Number(movement.quantity || 0), 0)) },
   ];
 }
 
@@ -3027,7 +2957,6 @@ function renderMovementTable(items) {
             <th>Type</th>
             <th>Product</th>
             <th class="numeric">Quantity</th>
-            <th class="numeric">Value</th>
             <th>Details</th>
           </tr>
         </thead>
@@ -3044,7 +2973,6 @@ function renderMovementTable(items) {
                 <td>${badge(movementLabel(movement.type), movementTone(movement.type))}</td>
                 <td>${product?.name || "Deleted product"}</td>
                 <td class="numeric">${quantity}</td>
-                <td class="numeric">${money(movementAmount(movement))}</td>
                 <td>${detailBadge || detail || ""}${movement.comment ? `<span class="detail-note">${movement.comment}</span>` : ""}</td>
               </tr>
             `;
@@ -3079,7 +3007,6 @@ function renderMovementList(items) {
             </div>
             <div class="movement-amount">
               <strong>${quantity}</strong>
-              <span>${money(movementAmount(movement))}</span>
             </div>
           </div>
         `;
@@ -3158,7 +3085,7 @@ function bindProducts() {
       unit: form.get("unit").trim(),
       openingStock: Number(form.get("openingStock")),
       minStock: 0,
-      price: Number(form.get("price")),
+      price: 0,
       active: form.get("active") === "on",
     };
 
@@ -3168,10 +3095,9 @@ function bindProducts() {
     }
 
     if (
-      !nonNegativeNumber(productPayload.openingStock) ||
-      !nonNegativeNumber(productPayload.price)
+      !nonNegativeNumber(productPayload.openingStock)
     ) {
-      showNotice("Opening stock and purchase price must be zero or higher.");
+      showNotice("Opening stock must be zero or higher.");
       return;
     }
 
@@ -3250,25 +3176,10 @@ function bindOverviewLocalActions() {}
 function bindIncoming() {
   const form = document.querySelector("#incoming-form");
   if (!form) return;
-  const syncProductPrice = () => {
-    const product = productById(form.productId.value);
-    if (product) form.unitPrice.value = product.price;
-    updateTotal();
-  };
-  const updateTotal = () => {
-    const quantity = Number(form.quantity.value || 0);
-    const unitPrice = Number(form.unitPrice.value || 0);
-    form.total.value = money(quantity * unitPrice);
-  };
-  form.productId.addEventListener("change", syncProductPrice);
-  form.quantity.addEventListener("input", updateTotal);
-  form.unitPrice.addEventListener("input", updateTotal);
-  syncProductPrice();
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(form);
     const quantity = Number(data.get("quantity"));
-    const unitPrice = Number(data.get("unitPrice"));
 
     if (!data.get("productId")) {
       showNotice("Choose a product before saving incoming goods.");
@@ -3280,11 +3191,6 @@ function bindIncoming() {
       return;
     }
 
-    if (!nonNegativeNumber(unitPrice)) {
-      showNotice("Incoming unit price must be zero or higher.");
-      return;
-    }
-
     state.movements.push({
       id: nextId(state.movements),
       type: "incoming",
@@ -3292,7 +3198,7 @@ function bindIncoming() {
       supplierId: Number(data.get("supplierId")),
       date: data.get("date"),
       quantity,
-      unitPrice,
+      unitPrice: 0,
       comment: data.get("comment").trim(),
     });
     saveState("Incoming movement saved. Stock increased.");
@@ -3339,7 +3245,7 @@ function bindOutgoing() {
       productId,
       date: data.get("date"),
       quantity: -Math.abs(quantity),
-      unitPrice: Number(product.price),
+      unitPrice: 0,
       reason: data.get("reason"),
       comment: data.get("comment").trim(),
     });
@@ -3356,15 +3262,12 @@ function bindInventory() {
       const actual = Number(form[`actual-${product.id}`].value || 0);
       const diff = roundStock(actual - stockFor(product.id));
       const diffCell = form.querySelector(`[data-diff="${product.id}"]`);
-      const valueCell = form.querySelector(`[data-value="${product.id}"]`);
       diffCell.textContent = diff;
       diffCell.classList.toggle("danger-text", diff !== 0);
-      valueCell.textContent = money(diff * product.price);
     });
 
     const liveSummary = inventorySummary(collectInventoryDraft(form));
     form.querySelector("#inventory-change-count").textContent = liveSummary.changedRows;
-    form.querySelector("#inventory-difference-value").textContent = money(liveSummary.differenceValue);
   };
 
   form.querySelectorAll("input").forEach((input) => input.addEventListener("input", recalculate));
@@ -3408,7 +3311,7 @@ function bindInventory() {
         productId: product.id,
         date,
         quantity: diff,
-        unitPrice: Number(product.price),
+        unitPrice: 0,
         reason: "Inventory",
         comment,
       });
@@ -3521,8 +3424,6 @@ function exportRowsForActiveReport() {
       product: product?.name || "Deleted product",
       quantity: roundStock(movement.quantity),
       unit: product?.unit || "",
-      unitPrice: movement.unitPrice,
-      value: signedMovementValue(movement),
       supplier: supplier?.name || "",
       reason: movement.reason || "",
       comment: movement.comment || "",
@@ -3558,14 +3459,6 @@ function numberInput(label, name, value, required) {
       <input name="${name}" type="number" step="0.001" min="0" value="${value}" ${required ? "required" : ""} />
     </label>
   `;
-}
-
-function formatEditablePrice(value) {
-  return Number(value).toLocaleString("en-US", {
-    useGrouping: false,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 3,
-  });
 }
 
 function dateInput(label, name, value) {
