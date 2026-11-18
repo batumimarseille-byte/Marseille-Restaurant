@@ -1275,6 +1275,25 @@ function closeOpenSelectControl() {
   openSelectControl = null;
 }
 
+function positionOpenSelectControl() {
+  if (!openSelectControl) return;
+  const { trigger, menu } = openSelectControl;
+  if (!trigger.isConnected || !menu.isConnected) {
+    closeOpenSelectControl();
+    return;
+  }
+
+  const rect = trigger.getBoundingClientRect();
+  const menuHeight = Math.min(menu.scrollHeight, 264);
+  const spaceBelow = window.innerHeight - rect.bottom - 8;
+  const placeAbove = spaceBelow < Math.min(menuHeight, 180) && rect.top > spaceBelow;
+  const menuWidth = Math.max(rect.width, 180);
+  menu.style.width = `${menuWidth}px`;
+  menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - menuWidth - 8))}px`;
+  menu.style.top = `${placeAbove ? Math.max(8, rect.top - menuHeight - 4) : rect.bottom + 4}px`;
+  menu.style.maxHeight = `${menuHeight}px`;
+}
+
 function selectLabel(select) {
   const explicitLabel = select.getAttribute("aria-label");
   if (explicitLabel) return explicitLabel;
@@ -1350,19 +1369,10 @@ function enhanceSelects(root = document) {
       });
 
       document.body.append(menu);
-      const rect = trigger.getBoundingClientRect();
-      const menuHeight = Math.min(menu.scrollHeight, 264);
-      const spaceBelow = window.innerHeight - rect.bottom - 8;
-      const placeAbove = spaceBelow < Math.min(menuHeight, 180) && rect.top > spaceBelow;
-      const menuWidth = Math.max(rect.width, 180);
-      menu.style.width = `${menuWidth}px`;
-      menu.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - menuWidth - 8))}px`;
-      menu.style.top = `${placeAbove ? Math.max(8, rect.top - menuHeight - 4) : rect.bottom + 4}px`;
-      menu.style.maxHeight = `${menuHeight}px`;
-
       control.classList.add("is-open");
       trigger.setAttribute("aria-expanded", "true");
       openSelectControl = { control, trigger, menu };
+      positionOpenSelectControl();
     };
 
     trigger.addEventListener("click", openMenu);
@@ -1386,8 +1396,8 @@ function enhanceSelects(root = document) {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeOpenSelectControl();
   });
-  window.addEventListener("resize", closeOpenSelectControl);
-  window.addEventListener("scroll", closeOpenSelectControl, true);
+  window.addEventListener("resize", positionOpenSelectControl);
+  window.addEventListener("scroll", positionOpenSelectControl, true);
 }
 
 function resetViewState() {
