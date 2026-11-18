@@ -427,6 +427,11 @@ let productFilters = {
   category: "all",
   status: "all",
 };
+let menuFilters = {
+  search: "",
+  group: "all",
+  status: "all",
+};
 
 function defaultReportFilters() {
   return {
@@ -440,6 +445,14 @@ function defaultProductFilters() {
   return {
     search: "",
     category: "all",
+    status: "all",
+  };
+}
+
+function defaultMenuFilters() {
+  return {
+    search: "",
+    group: "all",
     status: "all",
   };
 }
@@ -1216,6 +1229,7 @@ function resetViewState() {
   recipeDraftIngredients = [{ productId: "", quantity: "" }];
   productEditorOpen = window.innerWidth > 1100;
   productFilters = defaultProductFilters();
+  menuFilters = defaultMenuFilters();
   reportFilters = defaultReportFilters();
   activeReport = "movement";
 }
@@ -1320,6 +1334,19 @@ function filteredProducts() {
       (productFilters.status === "inactive" && !product.active);
 
     return matchesSearch && matchesCategory && matchesStatus;
+  });
+}
+
+function filteredMenuItems() {
+  const search = menuFilters.search.trim().toLowerCase();
+  return state.menuItems.filter((item) => {
+    const matchesSearch = !search || [item.name, item.posterName, item.group]
+      .some((value) => String(value || "").toLowerCase().includes(search));
+    const matchesGroup = menuFilters.group === "all" || item.group === menuFilters.group;
+    const matchesStatus = menuFilters.status === "all"
+      || (menuFilters.status === "active" && item.active !== false)
+      || (menuFilters.status === "inactive" && item.active === false);
+    return matchesSearch && matchesGroup && matchesStatus;
   });
 }
 
@@ -1854,6 +1881,8 @@ function renderMenu() {
   const menuLinesToImport = (pendingImport?.lines || []).filter((line) => !existingPosterNames.has(productNameKey(line.name)));
   const catalogItemsToImport = posterCatalog.filter((item) => !existingPosterNames.has(productNameKey(item.name)));
   const groups = [...new Set(state.menuItems.map((item) => item.group).filter(Boolean))].sort((first, second) => first.localeCompare(second));
+  const visibleItems = filteredMenuItems().slice().sort((first, second) => first.name.localeCompare(second.name));
+  const hasActiveFilters = Boolean(menuFilters.search || menuFilters.group !== "all" || menuFilters.status !== "all");
 
   return `
     <div class="form-layout">
@@ -1870,12 +1899,35 @@ function renderMenu() {
           </div>
         </div>
         ${state.menuItems.length ? `
+          <form class="table-toolbar" id="menu-toolbar">
+            <label class="search-field">
+              ${icon("search")}
+              <input name="search" value="${menuFilters.search}" placeholder="Search menu" />
+            </label>
+            <label>
+              Category
+              <select name="group">
+                <option value="all">All categories</option>
+                ${groups.map((group) => `<option value="${group}" ${menuFilters.group === group ? "selected" : ""}>${group}</option>`).join("")}
+              </select>
+            </label>
+            <label>
+              Status
+              <select name="status">
+                <option value="all" ${menuFilters.status === "all" ? "selected" : ""}>All statuses</option>
+                <option value="active" ${menuFilters.status === "active" ? "selected" : ""}>Active</option>
+                <option value="inactive" ${menuFilters.status === "inactive" ? "selected" : ""}>Inactive</option>
+              </select>
+            </label>
+          </form>
+          ${hasActiveFilters ? `<p class="filter-result-message">Showing ${visibleItems.length} ${visibleItems.length === 1 ? "menu item" : "menu items"}</p>` : ""}
           <div class="table-scroll">
             <table class="menu-table">
               <thead><tr><th>Menu item</th><th>Group</th><th>Poster name</th><th>Status</th><th>Recipe</th><th>Action</th></tr></thead>
               <tbody>
-                ${state.menuItems.slice().sort((first, second) => first.name.localeCompare(second.name)).map((item) => {
+                ${visibleItems.length ? visibleItems.map((item) => {
                   const recipe = state.recipes.find((entry) => Number(entry.menuItemId) === item.id);
+                  const recipeEditorOpen = Number(recipeDraftMenuItemId) === item.id;
                   return `
                     <tr>
                       <td><strong data-no-translate>${item.name}</strong></td>
@@ -1889,8 +1941,13 @@ function renderMenu() {
                       </td>
                       <td><button class="small-button icon-only" data-edit-menu-item="${item.id}" type="button" aria-label="Edit ${item.name}" title="Edit">${icon("edit")}</button></td>
                     </tr>
+                    ${recipeEditorOpen ? `
+                      <tr class="inline-editor-row">
+                        <td colspan="6">${renderMenuRecipeEditor(item, recipe)}</td>
+                      </tr>
+                    ` : ""}
                   `;
-                }).join("")}
+                }).join("") : `<tr><td colspan="6"><p class="empty-state">No menu items match these filters.</p></td></tr>`}
               </tbody>
             </table>
           </div>
@@ -1973,9 +2030,26 @@ function bindMenu() {
       editingRecipeId = recipe?.id || 0;
       recipeDraftMenuItemId = menuItemId;
       recipeDraftIngredients = recipe ? recipeIngredientRows(recipe) : [{ productId: "", quantity: "" }];
-      navigateToSection("reconcile", { reset: false });
+      notice = "";
+      renderShell();
     });
   });
+
+  const menuToolbar = document.querySelector("#menu-toolbar");
+  if (menuToolbar) {
+    menuToolbar.elements.search.addEventListener("input", () => {
+      menuFilters.search = menuToolbar.elements.search.value;
+      renderShell();
+    });
+    ["group", "status"].forEach((field) => {
+      menuToolbar.elements[field].addEventListener("change", () => {
+        menuFilters[field] = menuToolbar.elements[field].value;
+        renderShell();
+      });
+    });
+  }
+
+  bindMenuRecipeForm();
 
   document.querySelector("#import-poster-menu-lines")?.addEventListener("click", () => {
     const pendingImport = latestPendingSalesImport();
@@ -2009,6 +2083,64 @@ function bindMenu() {
     });
 
     saveState(`${items.length} menu items imported from the live Poster catalog.`);
+  });
+}
+
+function bindMenuRecipeForm() {
+  const recipeForm = document.querySelector("#menu-recipe-form");
+  if (!recipeForm) return;
+
+  recipeForm.querySelector("#add-recipe-ingredient")?.addEventListener("click", () => {
+    const recipeList = recipeForm.querySelector("#recipe-ingredient-list");
+    recipeList.insertAdjacentHTML("beforeend", recipeIngredientRow());
+    bindRecipeIngredientRow(recipeList.lastElementChild);
+  });
+  recipeForm.querySelectorAll("[data-recipe-ingredient]").forEach((row) => bindRecipeIngredientRow(row));
+
+  document.querySelector("#close-menu-recipe-editor")?.addEventListener("click", () => {
+    editingRecipeId = null;
+    recipeDraftMenuItemId = null;
+    recipeDraftIngredients = [{ productId: "", quantity: "" }];
+    renderShell();
+  });
+
+  recipeForm.querySelector("#delete-menu-recipe")?.addEventListener("click", () => {
+    const recipeId = Number(recipeForm.elements.id.value || 0);
+    const recipe = state.recipes.find((item) => item.id === recipeId);
+    if (!recipe || !confirm(`Delete the recipe card for ${recipeMenuLabel(recipe)}?`)) return;
+    state.recipes = state.recipes.filter((item) => item.id !== recipeId);
+    editingRecipeId = null;
+    recipeDraftMenuItemId = null;
+    recipeDraftIngredients = [{ productId: "", quantity: "" }];
+    saveState("Recipe card deleted.");
+  });
+
+  recipeForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const menuItemId = Number(recipeForm.dataset.menuItemId || 0);
+    const menuItem = menuItemById(menuItemId);
+    const recipeId = Number(recipeForm.elements.id.value || 0);
+    const ingredients = [...recipeForm.querySelectorAll("[data-recipe-ingredient]")]
+      .map((row) => ({
+        productId: Number(row.querySelector('[name="ingredient-product"]').value),
+        quantity: Number(row.querySelector('[name="ingredient-quantity"]').value),
+      }))
+      .filter((ingredient) => productById(ingredient.productId) && positiveNumber(ingredient.quantity));
+    const duplicate = state.recipes.find((recipe) => Number(recipe.menuItemId) === menuItemId && recipe.id !== recipeId);
+    if (!menuItem || !ingredients.length) {
+      showNotice("Choose at least one stock product and enter its quantity.");
+      return;
+    }
+    if (duplicate) {
+      showNotice("A recipe card for this menu item already exists.");
+      return;
+    }
+    const recipe = { id: recipeId || nextId(state.recipes), menuItemId, menuItem: menuItem.posterName, ingredients, updatedAt: new Date().toISOString() };
+    state.recipes = recipeId ? state.recipes.map((item) => (item.id === recipeId ? recipe : item)) : [...state.recipes, recipe];
+    editingRecipeId = null;
+    recipeDraftMenuItemId = null;
+    recipeDraftIngredients = [{ productId: "", quantity: "" }];
+    saveState("Recipe card saved.");
   });
 }
 
@@ -2133,15 +2265,46 @@ function reconciliationDraftFor(productId) {
 }
 
 function recipeIngredientRow(ingredient = {}) {
+  const unit = ingredient.productId ? productById(ingredient.productId)?.unit || "" : "";
   return `
     <div class="recipe-ingredient-row" data-recipe-ingredient>
       <select name="ingredient-product" required>
         <option value="">Choose product</option>
         ${productOptions(ingredient.productId || "")}
       </select>
-      <input name="ingredient-quantity" type="number" min="0" step="0.001" required value="${ingredient.quantity ?? ""}" placeholder="Per sold item" />
-      <span class="recipe-unit" data-recipe-unit>${ingredient.productId ? productById(ingredient.productId)?.unit || "" : ""}</span>
+      <input name="ingredient-quantity" data-recipe-quantity type="number" min="0" step="0.001" required value="${ingredient.quantity ?? ""}" placeholder="Quantity${unit ? `, ${unit}` : ""}" />
+      <span class="recipe-unit" data-recipe-unit>${unit}</span>
       <button class="small-button icon-only recipe-remove-button" type="button" data-remove-recipe-ingredient aria-label="Remove ingredient" title="Remove ingredient">${icon("x")}</button>
+    </div>
+  `;
+}
+
+function renderMenuRecipeEditor(menuItem, recipe) {
+  const ingredients = recipe ? recipeIngredientRows(recipe) : recipeDraftIngredients;
+  return `
+    <div class="inline-recipe-editor">
+      <div class="inline-recipe-heading">
+        <div>
+          <p class="eyebrow">Recipe card</p>
+          <h3>${menuItem.name}</h3>
+          <p>Choose each stock product and enter the exact quantity used for one sold item.</p>
+        </div>
+        <button class="small-button icon-only" id="close-menu-recipe-editor" type="button" aria-label="Close recipe card" title="Close">${icon("x")}</button>
+      </div>
+      <form class="recipe-form inline-recipe-form" id="menu-recipe-form" data-menu-item-id="${menuItem.id}">
+        <input type="hidden" name="id" value="${recipe?.id || ""}" />
+        <div class="recipe-ingredients wide">
+          <div class="recipe-ingredient-heading"><strong>Product from stock</strong><strong>Quantity per sold item</strong><span>Unit</span></div>
+          <div id="recipe-ingredient-list">
+            ${ingredients.map((ingredient) => recipeIngredientRow(ingredient)).join("")}
+          </div>
+          <button class="small-button" id="add-recipe-ingredient" type="button">${icon("plus")}Add product</button>
+        </div>
+        <div class="form-actions wide">
+          ${recipe ? `<button class="danger-button" id="delete-menu-recipe" type="button">${icon("trash")}Delete recipe</button>` : ""}
+          <button class="primary-button" type="submit">${icon("check")}Save recipe card</button>
+        </div>
+      </form>
     </div>
   `;
 }
@@ -2150,8 +2313,6 @@ function renderReconciliation() {
   const pendingImport = latestPendingSalesImport();
   const summary = salesImportSummary(pendingImport);
   const activeProducts = state.products.filter((product) => product.active);
-  const editingRecipe = editingRecipeId ? state.recipes.find((recipe) => recipe.id === editingRecipeId) : null;
-  const hasRecipes = state.recipes.length > 0;
   const draft = state.reconciliationDraft || { date: "", actuals: {}, comments: {} };
 
   return `
@@ -2211,57 +2372,11 @@ function renderReconciliation() {
         ` : ""}
       </article>
 
-      <article class="panel">
-        <div class="panel-header">
-          <div>
-            <p class="eyebrow">Step 2</p>
-            <h3>Recipe cards</h3>
-          </div>
-          <button class="small-button" id="open-recipe-editor" type="button">${icon("plus")}Add recipe</button>
-        </div>
-        ${editingRecipeId !== null ? `
-          <form class="recipe-form" id="recipe-form">
-            <input type="hidden" name="id" value="${editingRecipe?.id || ""}" />
-            <label class="wide">
-              Menu item
-              <select name="menu-item" required ${state.menuItems.length ? "" : "disabled"}>
-                <option value="">Choose menu item</option>
-                ${menuItemOptions(editingRecipe?.menuItemId || recipeDraftMenuItemId || "")}
-              </select>
-              ${state.menuItems.length ? `<span class="field-hint">The Poster name is taken from the selected menu item.</span>` : `<span class="field-hint">Create the Poster menu catalog first.</span>`}
-            </label>
-            <div class="recipe-ingredients wide">
-              <div class="recipe-ingredient-heading"><strong>Ingredient</strong><strong>Quantity per sold item</strong><span>Unit</span></div>
-              <div id="recipe-ingredient-list">
-                ${(editingRecipe ? recipeIngredientRows(editingRecipe) : recipeDraftIngredients).map((ingredient) => recipeIngredientRow(ingredient)).join("")}
-              </div>
-              <button class="small-button" id="add-recipe-ingredient" type="button">${icon("plus")}Add ingredient</button>
-            </div>
-            <div class="form-actions wide">
-              <button class="ghost-button" id="close-recipe-editor" type="button">Cancel</button>
-              <button class="primary-button" type="submit">${icon("check")}Save recipe card</button>
-            </div>
-          </form>
-        ` : hasRecipes ? `
-          <div class="recipe-list">
-            ${state.recipes.slice().sort((a, b) => a.menuItem.localeCompare(b.menuItem)).map((recipe) => `
-              <div class="recipe-list-row">
-                <div><strong>${recipeMenuLabel(recipe)}</strong><span>${recipeIngredientRows(recipe).length} ingredient${recipeIngredientRows(recipe).length === 1 ? "" : "s"}</span></div>
-                <div class="row-actions">
-                  <button class="small-button icon-only" data-edit-recipe="${recipe.id}" type="button" aria-label="Edit recipe" title="Edit recipe">${icon("edit")}</button>
-                  <button class="small-button icon-only danger-icon-button" data-delete-recipe="${recipe.id}" type="button" aria-label="Delete recipe" title="Delete recipe">${icon("trash")}</button>
-                </div>
-              </div>
-            `).join("")}
-          </div>
-        ` : `<div class="empty-state"><strong>No recipe cards yet</strong><span>Create a card for each Poster item that consumes inventory. Do not estimate portion sizes: use the kitchen's actual portion or bottle measure.</span></div>`}
-      </article>
-
       ${pendingImport ? `
         <article class="panel">
           <div class="panel-header">
             <div>
-              <p class="eyebrow">Step 3</p>
+              <p class="eyebrow">Step 2</p>
               <h3>Physical count</h3>
               <p class="section-description">Expected closing is calculated from receipts, current movements, and this Poster draft. Enter the real shelf count for every product.</p>
             </div>
@@ -2363,75 +2478,6 @@ function bindReconciliation() {
     saveState("Poster sales draft discarded.");
   });
 
-  document.querySelector("#open-recipe-editor")?.addEventListener("click", () => {
-    editingRecipeId = 0;
-    recipeDraftMenuItemId = null;
-    recipeDraftIngredients = [{ productId: "", quantity: "" }];
-    notice = "";
-    renderShell();
-  });
-
-  document.querySelector("#close-recipe-editor")?.addEventListener("click", () => {
-    editingRecipeId = null;
-    recipeDraftMenuItemId = null;
-    recipeDraftIngredients = [{ productId: "", quantity: "" }];
-    renderShell();
-  });
-
-  document.querySelectorAll("[data-edit-recipe]").forEach((button) => {
-    button.addEventListener("click", () => {
-      editingRecipeId = Number(button.dataset.editRecipe);
-      recipeDraftMenuItemId = null;
-      notice = "";
-      renderShell();
-    });
-  });
-
-  document.querySelectorAll("[data-delete-recipe]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const recipeId = Number(button.dataset.deleteRecipe);
-      const recipe = state.recipes.find((item) => item.id === recipeId);
-      if (!recipe || !confirm(`Delete the recipe card for ${recipeMenuLabel(recipe)}?`)) return;
-      state.recipes = state.recipes.filter((item) => item.id !== recipeId);
-      saveState("Recipe card deleted.");
-    });
-  });
-
-  const recipeForm = document.querySelector("#recipe-form");
-  recipeForm?.querySelector("#add-recipe-ingredient")?.addEventListener("click", () => {
-    const recipeList = recipeForm.querySelector("#recipe-ingredient-list");
-    recipeList.insertAdjacentHTML("beforeend", recipeIngredientRow());
-    bindRecipeIngredientRow(recipeList.lastElementChild);
-  });
-  recipeForm?.querySelectorAll("[data-recipe-ingredient]").forEach((row) => bindRecipeIngredientRow(row));
-  recipeForm?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const menuItemId = Number(recipeForm.elements["menu-item"].value || 0);
-    const menuItem = menuItemById(menuItemId);
-    const recipeId = Number(recipeForm.elements.id.value || 0);
-    const ingredients = [...recipeForm.querySelectorAll("[data-recipe-ingredient]")]
-      .map((row) => ({
-        productId: Number(row.querySelector('[name="ingredient-product"]').value),
-        quantity: Number(row.querySelector('[name="ingredient-quantity"]').value),
-      }))
-      .filter((ingredient) => productById(ingredient.productId) && positiveNumber(ingredient.quantity));
-    const duplicate = state.recipes.find((recipe) => Number(recipe.menuItemId) === menuItemId && recipe.id !== recipeId);
-    if (!menuItem || !ingredients.length) {
-      showNotice("Choose a menu item and add at least one ingredient with a quantity.");
-      return;
-    }
-    if (duplicate) {
-      showNotice("A recipe card for this Poster item already exists.");
-      return;
-    }
-    const recipe = { id: recipeId || nextId(state.recipes), menuItemId, menuItem: menuItem.posterName, ingredients, updatedAt: new Date().toISOString() };
-    state.recipes = recipeId ? state.recipes.map((item) => (item.id === recipeId ? recipe : item)) : [...state.recipes, recipe];
-    editingRecipeId = null;
-    recipeDraftMenuItemId = null;
-    recipeDraftIngredients = [{ productId: "", quantity: "" }];
-    saveState("Recipe card saved.");
-  });
-
   const reconciliationForm = document.querySelector("#reconciliation-form");
   if (!reconciliationForm) return;
   const pendingImport = latestPendingSalesImport();
@@ -2509,7 +2555,12 @@ function bindRecipeIngredientRow(row) {
   if (!row) return;
   const select = row.querySelector('[name="ingredient-product"]');
   const unit = row.querySelector("[data-recipe-unit]");
-  const updateUnit = () => { unit.textContent = productById(select.value)?.unit || ""; };
+  const quantity = row.querySelector("[data-recipe-quantity]");
+  const updateUnit = () => {
+    const productUnit = productById(select.value)?.unit || "";
+    unit.textContent = productUnit;
+    quantity.placeholder = `Quantity${productUnit ? `, ${productUnit}` : ""}`;
+  };
   select?.addEventListener("change", updateUnit);
   row.querySelector("[data-remove-recipe-ingredient]")?.addEventListener("click", () => {
     const recipeList = row.parentElement;

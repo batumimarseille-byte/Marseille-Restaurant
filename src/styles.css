@@ -1071,6 +1071,40 @@ h1 {
   box-shadow: var(--shadow-xs);
 }
 
+.inline-recipe-editor {
+  margin-top: 8px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 16px;
+  box-shadow: var(--shadow-xs);
+}
+
+.inline-recipe-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.inline-recipe-heading h3 {
+  margin: 2px 0 0;
+  font-size: 1rem;
+}
+
+.inline-recipe-heading p:last-child {
+  max-width: 640px;
+  margin: 6px 0 0;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.inline-recipe-form {
+  grid-template-columns: 1fr;
+}
+
 .inline-product-form {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
