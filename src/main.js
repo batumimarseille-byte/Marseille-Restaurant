@@ -2094,7 +2094,7 @@ function renderMenu() {
           ${hasActiveFilters ? `<p class="filter-result-message">Showing ${visibleItems.length} ${visibleItems.length === 1 ? "menu item" : "menu items"}</p>` : ""}
           <div class="table-scroll">
             <table class="menu-table">
-              <thead><tr><th>Menu item</th><th>Group</th><th>Poster name</th><th>Status</th><th>Recipe</th><th>Action</th></tr></thead>
+              <thead><tr><th>Item</th><th>Group</th><th>Status</th><th>Recipe</th><th>Action</th></tr></thead>
               <tbody>
                 ${visibleItems.length ? visibleItems.map((item) => {
                   const recipe = state.recipes.find((entry) => Number(entry.menuItemId) === item.id);
@@ -2102,9 +2102,11 @@ function renderMenu() {
                   const recipeEditorOpen = Number(recipeDraftMenuItemId) === item.id;
                   return `
                     <tr class="menu-item-row ${configuration === "recipe" ? "is-recipe-configured" : configuration === "standalone" ? "is-standalone-configured" : ""}">
-                      <td><strong data-no-translate>${item.name}</strong></td>
+                      <td>
+                        <strong data-no-translate>${item.name}</strong>
+                        ${item.posterName !== item.name ? `<span class="table-subline" data-no-translate>${item.posterName}</span>` : ""}
+                      </td>
                       <td data-no-translate>${item.group || "-"}</td>
-                      <td data-no-translate>${item.posterName}</td>
                       <td>${badge(item.active !== false ? "Active" : "Inactive", item.active !== false ? "success" : "neutral")}</td>
                       <td>${configuration === "recipe" ? badge("Recipe ready", "success") : configuration === "standalone" ? badge("Standalone item", "info") : badge("Needs setup", "neutral")}</td>
                       <td>
@@ -2118,11 +2120,11 @@ function renderMenu() {
                     </tr>
                     ${recipeEditorOpen ? `
                       <tr class="inline-editor-row">
-                        <td colspan="6">${renderMenuRecipeEditor(item, recipe)}</td>
+                        <td colspan="5">${renderMenuRecipeEditor(item, recipe)}</td>
                       </tr>
                     ` : ""}
                   `;
-                }).join("") : `<tr><td colspan="6"><p class="empty-state">No menu items match these filters.</p></td></tr>`}
+                }).join("") : `<tr><td colspan="5"><p class="empty-state">No menu items match these filters.</p></td></tr>`}
               </tbody>
             </table>
           </div>
