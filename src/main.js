@@ -2110,12 +2110,9 @@ function renderMenu() {
                       <td>${badge(item.active !== false ? "Active" : "Inactive", item.active !== false ? "success" : "neutral")}</td>
                       <td>${configuration === "recipe" ? badge("Recipe ready", "success") : configuration === "standalone" ? badge("Standalone item", "info") : badge("Needs setup", "neutral")}</td>
                       <td>
-                        <div class="row-actions table-row-actions">
-                          <button class="small-button compact" data-compose-recipe="${item.id}" type="button">
-                            ${configuration === "unconfigured" ? `${icon("plus")}Set up` : `${icon("edit")}Edit setup`}
-                          </button>
-                          <button class="small-button icon-only" data-edit-menu-item="${item.id}" type="button" aria-label="Edit ${item.name}" title="Edit">${icon("edit")}</button>
-                        </div>
+                        <button class="small-button compact" data-compose-recipe="${item.id}" type="button">
+                          ${configuration === "unconfigured" ? `${icon("plus")}Set up` : `${icon("edit")}Edit setup`}
+                        </button>
                       </td>
                     </tr>
                     ${recipeEditorOpen ? `
