@@ -203,6 +203,7 @@ const georgianTranslations = {
   "Catalog": "კატალოგი",
   "Product list": "პროდუქტების სია",
   "Add product": "პროდუქტის დამატება",
+  "Clear products": "პროდუქტების გასუფთავება",
   "Import Poster assortment": "Poster-ის ასორტიმენტის იმპორტი",
   "Poster assortment is already in the catalog.": "Poster-ის ასორტიმენტი უკვე კატალოგშია.",
   "Search products": "პროდუქტების ძიება",
@@ -725,6 +726,47 @@ function queueCloudProductRemoval(productId) {
     })
     .catch((error) => {
       notice = `Product removed in this browser. Cloud removal failed: ${cloudErrorMessage(error)}`;
+      renderShell();
+    });
+}
+
+function queueCloudCatalogReset(productIds) {
+  if (!isCloudEnabled()) return;
+
+  cloudSyncPromise = cloudSyncPromise
+    .catch(() => undefined)
+    .then(async () => {
+      if (productIds.length) {
+        const { error: countItemsError } = await supabase
+          .from("inventory_count_items")
+          .delete()
+          .in("product_id", productIds);
+        if (countItemsError) throw countItemsError;
+
+        const { error: movementsError } = await supabase
+          .from("stock_movements")
+          .delete()
+          .in("product_id", productIds);
+        if (movementsError) throw movementsError;
+
+        const { error: productsError } = await supabase
+          .from("products")
+          .delete()
+          .in("id", productIds);
+        if (productsError) throw productsError;
+      }
+
+      const { error: appStateError } = await supabase
+        .from("app_state")
+        .upsert([
+          { key: "inventory_draft", value: state.inventoryDraft },
+          { key: "recipes", value: [] },
+          { key: "reconciliation_draft", value: state.reconciliationDraft },
+        ]);
+      if (appStateError) throw appStateError;
+    })
+    .catch((error) => {
+      notice = `Products were cleared in this browser. Cloud reset failed: ${cloudErrorMessage(error)}`;
       renderShell();
     });
 }
@@ -1493,6 +1535,7 @@ function renderProducts() {
           <div class="row-actions">
             ${posterProductsToAdd.length ? `<button class="small-button" id="import-poster-assortment" type="button">${icon("plus")}Import Poster assortment</button>` : ""}
             ${productEditorOpen ? "" : `<button class="small-button" id="open-product-editor" type="button">${icon("plus")}Add product</button>`}
+            ${state.products.length ? `<button class="danger-button compact" id="clear-product-catalog" type="button">${icon("trash")}Clear products</button>` : ""}
           </div>
         </div>
         <form class="table-toolbar" id="products-toolbar">
@@ -2911,6 +2954,28 @@ function bindProducts() {
 
   document.querySelector("#import-poster-assortment")?.addEventListener("click", () => {
     addPosterAssortment();
+  });
+
+  document.querySelector("#clear-product-catalog")?.addEventListener("click", () => {
+    const productCount = state.products.length;
+    if (!productCount) return;
+    const confirmed = confirm(
+      `Clear ${productCount} product${productCount === 1 ? "" : "s"}, all stock movements, and recipe cards? Menu items, suppliers, and Poster sales will remain. This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    const productIds = state.products.map((product) => product.id);
+    state.products = [];
+    state.movements = [];
+    state.recipes = [];
+    state.inventoryDraft = { date: "", items: {} };
+    state.reconciliationDraft = { date: "", actuals: {}, comments: {} };
+    editingProductId = null;
+    productEditorOpen = false;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    notice = "Products, movements, and recipe cards cleared. Menu items remain.";
+    renderShell();
+    queueCloudCatalogReset(productIds);
   });
 
   productForm?.addEventListener("submit", (event) => {
