@@ -2110,7 +2110,10 @@ function renderMenu() {
                   return `
                     <tr class="menu-item-row ${configuration === "recipe" ? "is-recipe-configured" : configuration === "standalone" ? "is-standalone-configured" : ""}">
                       <td>
-                        <strong data-no-translate>${item.name}</strong>
+                        <div class="menu-item-name">
+                          <strong data-no-translate>${item.name}</strong>
+                          <button class="small-button compact icon-only" data-edit-menu-item="${item.id}" type="button" aria-label="Edit menu item" title="Edit menu item">${icon("edit")}</button>
+                        </div>
                         ${item.posterName !== item.name ? `<span class="table-subline" data-no-translate>${item.posterName}</span>` : ""}
                       </td>
                       <td data-no-translate>${item.group || "-"}</td>
@@ -2151,8 +2154,14 @@ function renderMenu() {
           </label>
           <label>
             Menu group
-            <input name="group" data-no-translate value="${editingItem?.group || ""}" list="menu-groups" placeholder="For example, Main dishes" />
-            <datalist id="menu-groups">${groups.map((group) => `<option value="${group}"></option>`).join("")}</datalist>
+            <div class="menu-group-control">
+              <select name="group-choice" data-menu-group-choice>
+                <option value="">No group</option>
+                ${groups.map((group) => `<option value="${group}" ${editingItem?.group === group ? "selected" : ""}>${group}</option>`).join("")}
+                <option value="__new__">New group</option>
+              </select>
+              <input name="new-group" data-new-menu-group data-no-translate class="is-hidden" placeholder="For example, Main dishes" />
+            </div>
           </label>
           <label>
             Poster name
@@ -2184,11 +2193,19 @@ function bindMenu() {
       showNotice("A menu item already uses this Poster name.");
       return;
     }
+    const selectedGroup = String(form.get("group-choice") || "");
+    const group = selectedGroup === "__new__"
+      ? String(form.get("new-group") || "").trim()
+      : selectedGroup;
+    if (selectedGroup === "__new__" && !group) {
+      showNotice("Enter a name for the new menu group.");
+      return;
+    }
     const payload = {
       ...editingItem,
       id: itemId || nextId(state.menuItems),
       name,
-      group: String(form.get("group") || "").trim(),
+      group,
       posterName,
       active: form.get("active") === "on",
     };
@@ -2210,6 +2227,16 @@ function bindMenu() {
     notice = "";
     renderShell();
   });
+
+  const groupChoice = document.querySelector("[data-menu-group-choice]");
+  const newGroupInput = document.querySelector("[data-new-menu-group]");
+  groupChoice?.addEventListener("change", () => {
+    const isNewGroup = groupChoice.value === "__new__";
+    newGroupInput.classList.toggle("is-hidden", !isNewGroup);
+    newGroupInput.disabled = !isNewGroup;
+    if (isNewGroup) newGroupInput.focus();
+  });
+  if (newGroupInput) newGroupInput.disabled = groupChoice?.value !== "__new__";
 
   document.querySelectorAll("[data-compose-recipe]").forEach((button) => {
     button.addEventListener("click", () => {

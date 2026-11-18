@@ -1593,6 +1593,26 @@ tbody tr:last-child td {
   margin: 12px 0 0;
 }
 
+.menu-item-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu-item-name .small-button {
+  opacity: 0;
+}
+
+.menu-item-row:hover .menu-item-name .small-button,
+.menu-item-name .small-button:focus-visible {
+  opacity: 1;
+}
+
+.menu-group-control {
+  display: grid;
+  gap: 8px;
+}
+
 .field-hint {
   color: var(--text-soft);
   font-size: 0.78rem;
