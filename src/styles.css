@@ -1105,6 +1105,26 @@ h1 {
   grid-template-columns: 1fr;
 }
 
+.is-hidden {
+  display: none !important;
+}
+
+.menu-table .menu-item-row.is-recipe-configured > td {
+  background: #f5fcf7;
+}
+
+.menu-table .menu-item-row.is-recipe-configured:hover > td {
+  background: #edf9f0;
+}
+
+.menu-table .menu-item-row.is-standalone-configured > td {
+  background: #f4fbfe;
+}
+
+.menu-table .menu-item-row.is-standalone-configured:hover > td {
+  background: #edf8fc;
+}
+
 .inline-product-form {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -1627,6 +1647,40 @@ tbody tr:last-child td {
 .recipe-ingredients {
   display: grid;
   gap: 9px;
+}
+
+.standalone-item-toggle {
+  align-items: flex-start;
+  min-height: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-muted);
+  padding: 11px 12px;
+}
+
+.standalone-item-toggle input {
+  margin-top: 1px;
+}
+
+.standalone-item-toggle span {
+  display: grid;
+  gap: 2px;
+}
+
+.standalone-item-toggle strong {
+  color: var(--text-main);
+  font-size: 0.88rem;
+}
+
+.standalone-item-toggle small {
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.standalone-product-field {
+  max-width: 420px;
 }
 
 .recipe-ingredient-heading,

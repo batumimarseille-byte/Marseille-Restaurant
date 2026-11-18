@@ -760,6 +760,7 @@ function queueCloudCatalogReset(productIds) {
         .from("app_state")
         .upsert([
           { key: "inventory_draft", value: state.inventoryDraft },
+          { key: "menu_items", value: state.menuItems || [] },
           { key: "recipes", value: [] },
           { key: "reconciliation_draft", value: state.reconciliationDraft },
         ]);
@@ -1970,19 +1971,23 @@ function renderMenu() {
               <tbody>
                 ${visibleItems.length ? visibleItems.map((item) => {
                   const recipe = state.recipes.find((entry) => Number(entry.menuItemId) === item.id);
+                  const configuration = menuItemRecipeConfiguration(item, recipe);
                   const recipeEditorOpen = Number(recipeDraftMenuItemId) === item.id;
                   return `
-                    <tr>
+                    <tr class="menu-item-row ${configuration === "recipe" ? "is-recipe-configured" : configuration === "standalone" ? "is-standalone-configured" : ""}">
                       <td><strong data-no-translate>${item.name}</strong></td>
                       <td data-no-translate>${item.group || "-"}</td>
                       <td data-no-translate>${item.posterName}</td>
                       <td>${badge(item.active !== false ? "Active" : "Inactive", item.active !== false ? "success" : "neutral")}</td>
+                      <td>${configuration === "recipe" ? badge("Recipe ready", "success") : configuration === "standalone" ? badge("Standalone item", "info") : badge("Needs setup", "neutral")}</td>
                       <td>
-                        <button class="small-button compact" data-compose-recipe="${item.id}" type="button">
-                          ${recipe ? `${icon("edit")}Edit recipe` : `${icon("plus")}Build recipe`}
-                        </button>
+                        <div class="row-actions table-row-actions">
+                          <button class="small-button compact" data-compose-recipe="${item.id}" type="button">
+                            ${configuration === "unconfigured" ? `${icon("plus")}Set up` : `${icon("edit")}Edit setup`}
+                          </button>
+                          <button class="small-button icon-only" data-edit-menu-item="${item.id}" type="button" aria-label="Edit ${item.name}" title="Edit">${icon("edit")}</button>
+                        </div>
                       </td>
-                      <td><button class="small-button icon-only" data-edit-menu-item="${item.id}" type="button" aria-label="Edit ${item.name}" title="Edit">${icon("edit")}</button></td>
                     </tr>
                     ${recipeEditorOpen ? `
                       <tr class="inline-editor-row">
@@ -2046,7 +2051,14 @@ function bindMenu() {
       showNotice("A menu item already uses this Poster name.");
       return;
     }
-    const payload = { id: itemId || nextId(state.menuItems), name, group: String(form.get("group") || "").trim(), posterName, active: form.get("active") === "on" };
+    const payload = {
+      ...editingItem,
+      id: itemId || nextId(state.menuItems),
+      name,
+      group: String(form.get("group") || "").trim(),
+      posterName,
+      active: form.get("active") === "on",
+    };
     state.menuItems = itemId ? state.menuItems.map((item) => item.id === itemId ? payload : item) : [...state.menuItems, payload];
     editingMenuItemId = null;
     saveState(itemId ? "Menu item updated." : "Menu item saved.");
@@ -2140,6 +2152,25 @@ function bindMenuRecipeForm() {
   });
   recipeForm.querySelectorAll("[data-recipe-ingredient]").forEach((row) => bindRecipeIngredientRow(row));
 
+  const standaloneToggle = recipeForm.elements.standaloneItem;
+  const standaloneField = recipeForm.querySelector("[data-standalone-product-field]");
+  const recipeIngredients = recipeForm.querySelector("[data-recipe-ingredients]");
+  const updateRecipeMode = () => {
+    const isStandalone = Boolean(standaloneToggle?.checked);
+    standaloneField?.classList.toggle("is-hidden", !isStandalone);
+    recipeIngredients?.classList.toggle("is-hidden", isStandalone);
+    const standaloneSelect = standaloneField?.querySelector("select");
+    if (standaloneSelect) {
+      standaloneSelect.disabled = !isStandalone;
+      standaloneSelect.required = isStandalone;
+    }
+    recipeIngredients?.querySelectorAll("select, input, button").forEach((field) => {
+      field.disabled = isStandalone;
+    });
+  };
+  standaloneToggle?.addEventListener("change", updateRecipeMode);
+  updateRecipeMode();
+
   document.querySelector("#close-menu-recipe-editor")?.addEventListener("click", () => {
     editingRecipeId = null;
     recipeDraftMenuItemId = null;
@@ -2147,15 +2178,19 @@ function bindMenuRecipeForm() {
     renderShell();
   });
 
-  recipeForm.querySelector("#delete-menu-recipe")?.addEventListener("click", () => {
+  recipeForm.querySelector("#clear-menu-recipe-config")?.addEventListener("click", () => {
     const recipeId = Number(recipeForm.elements.id.value || 0);
     const recipe = state.recipes.find((item) => item.id === recipeId);
-    if (!recipe || !confirm(`Delete the recipe card for ${recipeMenuLabel(recipe)}?`)) return;
-    state.recipes = state.recipes.filter((item) => item.id !== recipeId);
+    const menuItemId = Number(recipeForm.dataset.menuItemId || 0);
+    if (!confirm("Clear this recipe setup? The menu item will remain, but it will need a recipe or standalone product before the monthly check.")) return;
+    state.recipes = recipe ? state.recipes.filter((item) => item.id !== recipeId) : state.recipes;
+    state.menuItems = state.menuItems.map((item) => (item.id === menuItemId
+      ? { ...item, standaloneProductId: null }
+      : item));
     editingRecipeId = null;
     recipeDraftMenuItemId = null;
     recipeDraftIngredients = [{ productId: "", quantity: "" }];
-    saveState("Recipe card deleted.");
+    saveState("Recipe setup cleared.");
   });
 
   recipeForm.addEventListener("submit", (event) => {
@@ -2163,6 +2198,8 @@ function bindMenuRecipeForm() {
     const menuItemId = Number(recipeForm.dataset.menuItemId || 0);
     const menuItem = menuItemById(menuItemId);
     const recipeId = Number(recipeForm.elements.id.value || 0);
+    const standaloneProductId = Number(recipeForm.elements.standaloneProductId?.value || 0);
+    const isStandalone = recipeForm.elements.standaloneItem?.checked;
     const ingredients = [...recipeForm.querySelectorAll("[data-recipe-ingredient]")]
       .map((row) => ({
         productId: Number(row.querySelector('[name="ingredient-product"]').value),
@@ -2170,7 +2207,25 @@ function bindMenuRecipeForm() {
       }))
       .filter((ingredient) => productById(ingredient.productId) && positiveNumber(ingredient.quantity));
     const duplicate = state.recipes.find((recipe) => Number(recipe.menuItemId) === menuItemId && recipe.id !== recipeId);
-    if (!menuItem || !ingredients.length) {
+    if (!menuItem) return;
+
+    if (isStandalone) {
+      if (!productById(standaloneProductId)) {
+        showNotice("Choose the stock product sold as this standalone item.");
+        return;
+      }
+      state.menuItems = state.menuItems.map((item) => (item.id === menuItemId
+        ? { ...item, standaloneProductId }
+        : item));
+      state.recipes = state.recipes.filter((item) => Number(item.menuItemId) !== menuItemId);
+      editingRecipeId = null;
+      recipeDraftMenuItemId = null;
+      recipeDraftIngredients = [{ productId: "", quantity: "" }];
+      saveState("Standalone item saved.");
+      return;
+    }
+
+    if (!ingredients.length) {
       showNotice("Choose at least one stock product and enter its quantity.");
       return;
     }
@@ -2178,6 +2233,9 @@ function bindMenuRecipeForm() {
       showNotice("A recipe card for this menu item already exists.");
       return;
     }
+    state.menuItems = state.menuItems.map((item) => (item.id === menuItemId
+      ? { ...item, standaloneProductId: null }
+      : item));
     const recipe = { id: recipeId || nextId(state.recipes), menuItemId, menuItem: menuItem.posterName, ingredients, updatedAt: new Date().toISOString() };
     state.recipes = recipeId ? state.recipes.map((item) => (item.id === recipeId ? recipe : item)) : [...state.recipes, recipe];
     editingRecipeId = null;
@@ -2229,6 +2287,24 @@ function recipeForSalesLine(lineName) {
   return state.recipes.find((recipe) => productNameKey(recipeMenuLabel(recipe)) === lineKey) || null;
 }
 
+function menuItemForSalesLine(lineName) {
+  const lineKey = productNameKey(lineName);
+  return state.menuItems.find((menuItem) => productNameKey(menuItem.posterName) === lineKey) || null;
+}
+
+function standaloneProductForMenuItem(menuItem) {
+  const productId = Number(menuItem?.standaloneProductId || 0);
+  const product = productById(productId);
+  return product?.active ? product : null;
+}
+
+function menuItemRecipeConfiguration(menuItem, recipe = null) {
+  if (standaloneProductForMenuItem(menuItem)) return "standalone";
+  return recipeIngredientRows(recipe || state.recipes.find((item) => Number(item.menuItemId) === menuItem?.id)).length
+    ? "recipe"
+    : "unconfigured";
+}
+
 function salesImportSummary(salesImport) {
   const result = {
     salesLines: salesImport?.lines?.length || 0,
@@ -2238,8 +2314,18 @@ function salesImportSummary(salesImport) {
   };
 
   (salesImport?.lines || []).forEach((line) => {
+    const menuItem = menuItemForSalesLine(line.name);
+    const standaloneProduct = standaloneProductForMenuItem(menuItem);
     const recipe = recipeForSalesLine(line.name);
     const soldQuantity = Number(line.quantity || 0);
+    if (standaloneProduct && positiveNumber(soldQuantity)) {
+      result.linkedLines += 1;
+      result.consumption.set(
+        standaloneProduct.id,
+        roundStock((result.consumption.get(standaloneProduct.id) || 0) + soldQuantity),
+      );
+      return;
+    }
     const ingredients = recipeIngredientRows(recipe);
     if (!recipe || !ingredients.length || !positiveNumber(soldQuantity)) {
       result.unlinkedLines.push(line);
@@ -2324,6 +2410,8 @@ function recipeIngredientRow(ingredient = {}) {
 
 function renderMenuRecipeEditor(menuItem, recipe) {
   const ingredients = recipe ? recipeIngredientRows(recipe) : recipeDraftIngredients;
+  const standaloneProduct = standaloneProductForMenuItem(menuItem);
+  const isStandalone = Boolean(standaloneProduct);
   return `
     <div class="inline-recipe-editor">
       <div class="inline-recipe-heading">
@@ -2336,7 +2424,20 @@ function renderMenuRecipeEditor(menuItem, recipe) {
       </div>
       <form class="recipe-form inline-recipe-form" id="menu-recipe-form" data-menu-item-id="${menuItem.id}">
         <input type="hidden" name="id" value="${recipe?.id || ""}" />
-        <div class="recipe-ingredients wide">
+        <label class="checkbox-line standalone-item-toggle wide">
+          <input type="checkbox" name="standaloneItem" ${isStandalone ? "checked" : ""} />
+          <span><strong>Standalone stock item</strong><small>No recipe needed. Each sale subtracts one unit of the selected product.</small></span>
+        </label>
+        <div class="standalone-product-field wide ${isStandalone ? "" : "is-hidden"}" data-standalone-product-field>
+          <label>
+            Stock product sold
+            <select name="standaloneProductId" ${isStandalone ? "required" : "disabled"}>
+              <option value="">Choose product</option>
+              ${productOptions(standaloneProduct?.id || "")}
+            </select>
+          </label>
+        </div>
+        <div class="recipe-ingredients wide ${isStandalone ? "is-hidden" : ""}" data-recipe-ingredients>
           <div class="recipe-ingredient-heading"><strong>Product from stock</strong><strong>Quantity per sold item</strong><span>Unit</span></div>
           <div id="recipe-ingredient-list">
             ${ingredients.map((ingredient) => recipeIngredientRow(ingredient)).join("")}
@@ -2344,7 +2445,7 @@ function renderMenuRecipeEditor(menuItem, recipe) {
           <button class="small-button" id="add-recipe-ingredient" type="button">${icon("plus")}Add product</button>
         </div>
         <div class="form-actions wide">
-          ${recipe ? `<button class="danger-button" id="delete-menu-recipe" type="button">${icon("trash")}Delete recipe</button>` : ""}
+          ${recipe || isStandalone ? `<button class="danger-button" id="clear-menu-recipe-config" type="button">${icon("trash")}Clear setup</button>` : ""}
           <button class="primary-button" type="submit">${icon("check")}Save recipe card</button>
         </div>
       </form>
@@ -2401,17 +2502,17 @@ function renderReconciliation() {
           <div class="reconciliation-summary">
             <div><span>Sales lines</span><strong>${summary.salesLines}</strong></div>
             <div><span>Recipe coverage</span><strong>${summary.linkedLines} / ${summary.salesLines}</strong></div>
-            <div><span>Needs recipe</span><strong>${summary.unlinkedLines.length}</strong></div>
+            <div><span>Needs setup</span><strong>${summary.unlinkedLines.length}</strong></div>
           </div>
           ${summary.unlinkedLines.length ? `
             <div class="unlinked-sales">
-              <strong>Menu items without a recipe card</strong>
+              <strong>Menu items without a recipe or standalone product</strong>
               <div class="unlinked-sales-list">
                 ${summary.unlinkedLines.slice(0, 24).map((line) => `<span>${line.name} <b>${line.quantity}</b></span>`).join("")}
               </div>
               ${summary.unlinkedLines.length > 24 ? `<p>Plus ${summary.unlinkedLines.length - 24} more items.</p>` : ""}
             </div>
-          ` : `<p class="reconciliation-success">All imported sales lines have recipe cards.</p>`}
+          ` : `<p class="reconciliation-success">All imported sales lines are configured.</p>`}
         ` : ""}
       </article>
 
@@ -2554,7 +2655,7 @@ function bindReconciliation() {
     }
     const finalSummary = salesImportSummary(pendingImport);
     if (finalSummary.unlinkedLines.length) {
-      showNotice(`Create recipe cards for all imported menu items before confirming. ${finalSummary.unlinkedLines.length} still need a recipe.`);
+      showNotice(`Configure every imported menu item before confirming. ${finalSummary.unlinkedLines.length} still need a recipe or standalone product.`);
       return;
     }
     const hasInvalidActual = state.products
@@ -2968,6 +3069,7 @@ function bindProducts() {
     state.products = [];
     state.movements = [];
     state.recipes = [];
+    state.menuItems = state.menuItems.map((item) => ({ ...item, standaloneProductId: null }));
     state.inventoryDraft = { date: "", items: {} };
     state.reconciliationDraft = { date: "", actuals: {}, comments: {} };
     editingProductId = null;
