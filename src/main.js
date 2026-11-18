@@ -409,6 +409,7 @@ let editingProductId = null;
 let editingSupplierId = null;
 let editingMenuItemId = null;
 let editingRecipeId = null;
+let recipeDraftMenuItemId = null;
 let recipeDraftIngredients = [{ productId: "", quantity: "" }];
 let sidebarWidth = window.innerWidth > 1100 ? 260 : 208;
 let sidebarLayoutThresholds = { logo: 268, nav: 168, brand: 150, min: 88 };
@@ -1211,6 +1212,7 @@ function resetViewState() {
   editingSupplierId = null;
   editingMenuItemId = null;
   editingRecipeId = null;
+  recipeDraftMenuItemId = null;
   recipeDraftIngredients = [{ productId: "", quantity: "" }];
   productEditorOpen = window.innerWidth > 1100;
   productFilters = defaultProductFilters();
@@ -1880,7 +1882,11 @@ function renderMenu() {
                       <td data-no-translate>${item.group || "-"}</td>
                       <td data-no-translate>${item.posterName}</td>
                       <td>${badge(item.active !== false ? "Active" : "Inactive", item.active !== false ? "success" : "neutral")}</td>
-                      <td>${recipe ? badge(`${recipeIngredientRows(recipe).length} ingredients`, "info") : badge("Not linked", "warning")}</td>
+                      <td>
+                        <button class="small-button compact" data-compose-recipe="${item.id}" type="button">
+                          ${recipe ? `${icon("edit")}Edit recipe` : `${icon("plus")}Build recipe`}
+                        </button>
+                      </td>
                       <td><button class="small-button icon-only" data-edit-menu-item="${item.id}" type="button" aria-label="Edit ${item.name}" title="Edit">${icon("edit")}</button></td>
                     </tr>
                   `;
@@ -1958,6 +1964,17 @@ function bindMenu() {
     editingMenuItemId = null;
     notice = "";
     renderShell();
+  });
+
+  document.querySelectorAll("[data-compose-recipe]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const menuItemId = Number(button.dataset.composeRecipe);
+      const recipe = state.recipes.find((item) => Number(item.menuItemId) === menuItemId);
+      editingRecipeId = recipe?.id || 0;
+      recipeDraftMenuItemId = menuItemId;
+      recipeDraftIngredients = recipe ? recipeIngredientRows(recipe) : [{ productId: "", quantity: "" }];
+      navigateToSection("reconcile", { reset: false });
+    });
   });
 
   document.querySelector("#import-poster-menu-lines")?.addEventListener("click", () => {
@@ -2209,7 +2226,7 @@ function renderReconciliation() {
               Menu item
               <select name="menu-item" required ${state.menuItems.length ? "" : "disabled"}>
                 <option value="">Choose menu item</option>
-                ${menuItemOptions(editingRecipe?.menuItemId || "")}
+                ${menuItemOptions(editingRecipe?.menuItemId || recipeDraftMenuItemId || "")}
               </select>
               ${state.menuItems.length ? `<span class="field-hint">The Poster name is taken from the selected menu item.</span>` : `<span class="field-hint">Create the Poster menu catalog first.</span>`}
             </label>
@@ -2348,6 +2365,7 @@ function bindReconciliation() {
 
   document.querySelector("#open-recipe-editor")?.addEventListener("click", () => {
     editingRecipeId = 0;
+    recipeDraftMenuItemId = null;
     recipeDraftIngredients = [{ productId: "", quantity: "" }];
     notice = "";
     renderShell();
@@ -2355,6 +2373,7 @@ function bindReconciliation() {
 
   document.querySelector("#close-recipe-editor")?.addEventListener("click", () => {
     editingRecipeId = null;
+    recipeDraftMenuItemId = null;
     recipeDraftIngredients = [{ productId: "", quantity: "" }];
     renderShell();
   });
@@ -2362,6 +2381,7 @@ function bindReconciliation() {
   document.querySelectorAll("[data-edit-recipe]").forEach((button) => {
     button.addEventListener("click", () => {
       editingRecipeId = Number(button.dataset.editRecipe);
+      recipeDraftMenuItemId = null;
       notice = "";
       renderShell();
     });
@@ -2407,6 +2427,7 @@ function bindReconciliation() {
     const recipe = { id: recipeId || nextId(state.recipes), menuItemId, menuItem: menuItem.posterName, ingredients, updatedAt: new Date().toISOString() };
     state.recipes = recipeId ? state.recipes.map((item) => (item.id === recipeId ? recipe : item)) : [...state.recipes, recipe];
     editingRecipeId = null;
+    recipeDraftMenuItemId = null;
     recipeDraftIngredients = [{ productId: "", quantity: "" }];
     saveState("Recipe card saved.");
   });
