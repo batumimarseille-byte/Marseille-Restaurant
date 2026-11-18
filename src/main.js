@@ -2148,8 +2148,12 @@ function bindMenu() {
   const menuToolbar = document.querySelector("#menu-toolbar");
   if (menuToolbar) {
     menuToolbar.elements.search.addEventListener("input", () => {
+      const cursorPosition = menuToolbar.elements.search.selectionStart;
       menuFilters.search = menuToolbar.elements.search.value;
       renderShell();
+      const searchInput = document.querySelector("#menu-toolbar input[name='search']");
+      searchInput?.focus();
+      searchInput?.setSelectionRange(cursorPosition, cursorPosition);
     });
     ["group"].forEach((field) => {
       menuToolbar.elements[field].addEventListener("change", () => {
